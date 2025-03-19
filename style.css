@@ -1,0 +1,278 @@
+body {
+    background-image: url("images/background_tile.png");
+    background-repeat: repeat;
+    background-color: rgba(0, 0, 0, 0.5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px #8cd1ff solid;
+    filter: drop-shadow(0 0 5px black);
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+#counter {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #8cd1ff;
+    font-weight: 700;
+    font-size: 225%;
+}
+
+#endcounter {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #8cd1ff;
+    font-weight: 700;
+    font-size: 250%;
+}
+
+#timer {
+    position: absolute;
+    bottom: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #8cd1ff;
+    font-weight: 400;
+    font-size: 135%;
+}
+
+#ig_wikt0r3k {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 115%;
+    font-weight: 200;
+    position: absolute;
+    bottom: 1%;
+    left: 1%;
+    filter: invert(100%);
+}
+
+#ig_ankaa {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 115%;
+    font-weight: 200;
+    position: absolute;
+    bottom: 1%;
+    right: 1%;
+    filter: invert(100%);
+}
+
+#ig_wikt0r3k:hover {
+    opacity: 0.75;
+}
+
+#ig_ankaa:hover {
+    opacity: 0.75;
+}
+
+#loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameover {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#game {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#reset {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #8cd1ff;
+    border: 3px #8cd1ff solid;
+    padding: 20px;
+    font-size: 200%;
+}
+
+#reset:hover {
+    cursor: pointer;
+    filter: brightness(125%);
+}
+
+#flags {
+    display: flex;
+    position: absolute;
+    top: 0%;
+    right: 1%;
+}
+
+.flag:hover {
+    cursor: pointer;
+    filter: brightness(120%);
+}
+
+#catskin {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #8cd1ff;
+    font-weight: 700;
+    font-size: 250%;
+}
+
+#skins {
+    display: flex;
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.skin {
+    cursor: pointer;
+}
+
+#mobilecontrols {
+    display: none;
+}
+
+@media only screen and (max-width: 767px) {
+    canvas {
+        top: 35%;
+        width: 100%;
+        height: calc(100% - var(width)/2);
+    }
+
+    #counter {
+        text-align: center;
+        width: 100vw;
+        top: 7.5%;
+        font-size: calc(2vw + 2vh + 1vmin);
+    }
+
+    #endcounter {
+        text-align: center;
+        width: 100vw;
+        font-size: calc(2vw + 2vh + 1vmin);
+    }
+
+    #catskin {
+        text-align: center;
+        width: 100vw;
+        top: 65%;
+        font-size: calc(2vw + 2vh + 1vmin);
+    }
+
+    #skins {
+        text-align: center;
+        width: 100vw;
+        display: flex;
+        position: absolute;
+        top: 80%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #timer {
+        text-align: center;
+        width: 100vw;
+        top: 38%;
+        font-size: calc(1vw + 1vh + 0.5vmin);
+    }
+
+    #reset {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: #8cd1ff;
+        border: 3px #8cd1ff solid;
+        padding: 20px;
+        font-size: 130%;
+    }
+
+    #mobilecontrols {
+        display: inline;
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        bottom: 10%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .arrow {
+        width: 60px;
+        height: 60px;
+    }
+
+    #moveup {
+        position: absolute;
+        top: 0%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 0 5px black);
+    }
+
+    #movedown {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translate(50%, 50%);
+        rotate: 180deg;
+        filter: drop-shadow(0 0 5px black);
+    }
+
+    #moveleft {
+        position: absolute;
+        top: 50%;
+        left: 0%;
+        transform: translate(50%, -50%);
+        rotate: 270deg;
+        filter: drop-shadow(0 0 5px black);
+    }
+
+    #moveright {
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        transform: translate(-50%, 50%);
+        rotate: 90deg;
+        filter: drop-shadow(0 0 5px black);
+    }
+
+    #flags {
+        display: flex;
+        position: absolute;
+        top: 0%;
+        right: 0%;
+        width: 100vw;
+    }
+
+    .flag {
+        width: 15vw;
+    }
+}

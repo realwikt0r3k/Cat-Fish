@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat-Fish</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="images/cat.ico" type="image/x-icon">
+</head>
+<body>
+    <div id="loading">
+        Loading...
+    </div>
+
+    <div id="game">
+        <canvas id="canvas" width="1000px" height="650px"></canvas>
+        <p id="counter">Your points: 0</p>
+        <p id="timer">Time left: 15</p>
+
+        <img src="images/cat1.png" id="cat" hidden="true" />
+        <img src="images/rybka.png" id="goodfish" hidden="true" />
+        <img src="images/zla_rybka.png" id="badfish" hidden="true" />
+        <img src="images/timer_rybka.png" id="timefish" hidden="true" />
+        <img src="images/zlota_rybka.png" id="goldfish" hidden="true" />
+        <img src="images/smierc_rybka.png" id="deadfish" hidden="true" />
+
+        <div id="mobilecontrols">
+            <img src="images/arrow.png" id="moveup" class="arrow">
+            <img src="images/arrow.png" id="movedown" class="arrow">
+            <img src="images/arrow.png" id="moveleft" class="arrow">
+            <img src="images/arrow.png" id="moveright" class="arrow">
+        </div>
+    </div>
+
+    <div id="gameover">
+        <p id="endcounter">Your points: 0</p>
+        <div id="reset" onclick="game()">Play again</div>
+        <p id="catskin">Your cat's skin: </p>
+        <div id="skins">
+            <img src="images/cat1.png" class="skin" width="80px" height="80px" onclick="changeCat(0)" />
+            <img src="images/cat2.png" class="skin" width="80px" height="80px" onclick="changeCat(1)" />
+            <img src="images/cat3.png" class="skin" width="80px" height="80px" onclick="changeCat(2)" />
+            <img src="images/cat4.png" class="skin" width="80px" height="80px" onclick="changeCat(3)" />
+        </div>
+    </div>
+
+    <div id="flags">
+        <img src="images/flag_pl.png" class="flag" onclick="changeLanguage(0)" />&nbsp;
+        <img src="images/flag_en.png" class="flag" onclick="changeLanguage(1)" />&nbsp;
+        <img src="images/flag_de.png" class="flag" onclick="changeLanguage(2)" />&nbsp;
+        <img src="images/flag_es.png" class="flag" onclick="changeLanguage(3)" />&nbsp;
+        <img src="images/flag_ru.png" class="flag" onclick="changeLanguage(4)" />
+    </div>
+
+    <div id="ig_wikt0r3k">
+        <img src="images/instagram.png" width="40px" height="40px" onclick="location.href='https://www.instagram.com/wiktorniak/'" />
+        <p>&nbsp;&nbsp;wikt0r3k - Developer</p>
+    </div>
+    <div id="ig_ankaa">
+        <p>AnKaa - Graphic Designer&nbsp;&nbsp;</p>
+        <img src="images/instagram.png" width="40px" height="40px" onclick="location.href='https://www.instagram.com/anlaanka/'" />
+    </div>
+
+    <script src="index.js"></script>
+    <script src="movement.js"></script>
+</body>
+</html>
