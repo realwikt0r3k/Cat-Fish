@@ -17,9 +17,9 @@ Gameplay is *kinda* repeatable, but as the game is in pretty much early stage of
 
 ## Goals for Singleplayer Version
 - **Shop** ✔
-- **10+ cats** *(12 at the moment)*✔
+- **10+ cats** *(12 at the moment)* ✔
 - **Cases** ✔ <sub>The cat's bag in shop.</sub>
-- **More than 1 language** *(2 at the moment)*✔
+- **More than 1 language** *(2 at the moment)* ✔
 - **Autosave** ✔
 - **Sound Effects** ✔
 - Daily Rewards 
