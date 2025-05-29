@@ -1,66 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cat-Fish is a game, where you control a cat to collect as many fish as you can! You can collect coins (or get them by just playing), to buy better cats!">
+    <meta name="keywords" content="catfish, web game, wikt0r3k, cats, polish web games">
+    <meta name="author" content="wikt0r3k">
+
+    <meta name="twitter:title" content="Cat-Fish">
+    <meta name="twitter:description" content="Cat-Fish is a game, where you control a cat to collect as many fish as you can! You can collect coins (or get them by just playing), to buy better cats!">
+    <meta name="twitter:image" content="images/cat.ico">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <meta content="Cat-Fish" property="og:title" />
+    <meta content="Cat-Fish is a game, where you control a cat to collect as many fish as you can! You can collect coins (or get them by just playing), to buy better cats!" property="og:description" />
+    <meta content="https://wikt0r3k.pl/catfish/" property="og:url" />
+    <meta content="images/cat.ico" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+    
     <title>Cat-Fish</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_mobile.css">
     <link rel="shortcut icon" href="images/cat.ico" type="image/x-icon">
 </head>
 <body>
-    <div id="loading">
-        Loading...
-    </div>
+    <p id="startingtimer"></p>
 
     <div id="game">
         <canvas id="canvas" width="1000px" height="650px"></canvas>
         <p id="counter">Your points: 0</p>
         <p id="timer">Time left: 15</p>
 
-        <img src="images/cat1.png" id="cat" hidden="true" />
-        <img src="images/rybka.png" id="goodfish" hidden="true" />
-        <img src="images/zla_rybka.png" id="badfish" hidden="true" />
-        <img src="images/timer_rybka.png" id="timefish" hidden="true" />
-        <img src="images/zlota_rybka.png" id="goldfish" hidden="true" />
-        <img src="images/smierc_rybka.png" id="deadfish" hidden="true" />
+        <img src="images/cats/cat1.png" id="cat" hidden="true" />
+        <img src="images/fish/rybka.png" id="goodfish" hidden="true" />
+        <img src="images/fish/zla_rybka.png" id="badfish" hidden="true" />
+        <img src="images/fish/timer_rybka.png" id="timefish" hidden="true" />
+        <img src="images/fish/zlota_rybka.png" id="goldfish" hidden="true" />
+        <img src="images/fish/smierc_rybka.png" id="deadfish" hidden="true" />
+        <img src="images/UI/moneta.png" id="coin" hidden="true" />
+
+        <p id="randomEvent"></p>
 
         <div id="mobilecontrols">
-            <img src="images/arrow.png" id="moveup" class="arrow">
-            <img src="images/arrow.png" id="movedown" class="arrow">
-            <img src="images/arrow.png" id="moveleft" class="arrow">
-            <img src="images/arrow.png" id="moveright" class="arrow">
+            <img src="images/UI/arrow_up.png" width="12vw" height="12vw" id="moveup" class="arrow">
+            <img src="images/UI/arrow_down.png" width="12vw" height="12vw" id="movedown" class="arrow">
+            <img src="images/UI/arrow_left.png" width="12vw" height="12vw" id="moveleft" class="arrow">
+            <img src="images/UI/arrow_right.png" width="12vw" height="12vw" id="moveright" class="arrow">
         </div>
     </div>
 
     <div id="gameover">
-        <p id="endcounter">Your points: 0</p>
-        <div id="reset" onclick="game()">Play again</div>
-        <p id="catskin">Your cat's skin: </p>
-        <div id="skins">
-            <img src="images/cat1.png" class="skin" width="80px" height="80px" onclick="changeCat(0)" />
-            <img src="images/cat2.png" class="skin" width="80px" height="80px" onclick="changeCat(1)" />
-            <img src="images/cat3.png" class="skin" width="80px" height="80px" onclick="changeCat(2)" />
-            <img src="images/cat4.png" class="skin" width="80px" height="80px" onclick="changeCat(3)" />
+        <div id="endstats">
+            <p id="endcounter">Your points: 0</p>
+            <p id="endcoins">Your coins: 0 </p>
+            <ul>
+                <li id="fish1">0 <img src="images/fish/rybka.png" /></li>
+                <li id="fish2">0 <img src="images/fish/zla_rybka.png" /></li>
+                <li id="fish3">0 <img src="images/fish/timer_rybka.png" /></li>
+                <li id="fish4">0 <img src="images/fish/zlota_rybka.png" /></li>
+                <li id="fish5">0 <img src="images/fish/smierc_rybka.png" /></li>
+            </ul>
+        </div>
+
+        <div class="buttons">
+            <div onclick="startGame(3)">
+                <img src="images/UI/replay.png" width="125px" height="125px" class="main"/>
+            </div>
+
+            <div onclick="mainmenu()">
+                <img src="images/UI/mainmenu.png" width="100px" height="100px"/>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainmenu">
+        <p id="mobile">Mobile is not supported.</p>
+        <div id="pc">
+            <div id="logo">
+                <img src="images/logo.png" width="800px"/>
+            </div>
+            <div class="buttons">
+                <div onclick="infomenu()">
+                    <img src="images/UI/info.png" width="100px" height="100px"/>
+                </div>
+                <div onclick="startGame(3)">
+                    <img src="images/UI/start.png" width="125px" height="125px" class="main"/>
+                </div>
+                <div onclick="catmenu()">
+                    <img src="images/UI/catsmenu.png" width="100px" height="100px"/>
+                </div>
+            </div>
+            <p id="splashtext"></p>
+        </div>
+    </div>
+
+    <div id="catmenu">
+        <div id="coinsshop">
+        </div>
+        <div id="cats">
+            <img src="images/cats/cat1.png" class="skin" width="80px" height="80px" onclick="changeCat(0)" />
+            <img src="images/cats/locked_cat.png" class="skin" width="80px" height="80px" onclick="changeCat(1)" />
+            <img src="images/cats/locked_cat.png" class="skin" width="80px" height="80px" onclick="changeCat(2)" />
+            <img src="images/cats/locked_cat.png" class="skin" width="80px" height="80px" onclick="changeCat(3)" />
+        </div>
+        <div id="catdescription">
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. A voluptas corrupti nam facere nemo ullam veritatis nobis numquam iste sit et mollitia, beatae tenetur assumenda corporis! Veritatis suscipit in quaerat?
+            Placeat soluta, architecto a tempora iusto, magnam eaque assumenda in accusamus, cum facilis maiores nemo qui? Perferendis minus, magni explicabo amet voluptatibus ut. Repudiandae nulla deserunt veniam omnis dolorum unde.
+            Qui quas rerum commodi nam omnis fuga sunt delectus corporis. Esse quas nihil fugiat veritatis totam fuga, doloribus sequi culpa assumenda cumque dolore voluptate repudiandae rerum vitae odio, tempore aut.</p>
+        </div>
+        <div class="bags">
+            <div class="bag" onclick="openCase()">
+                <img src="images/cats/bag/cat_bag.png" width="80px" height="80px" />
+                <img src="images/cats/costs/cost_250.png" class="bag_cost" width="80px" height="80px" />
+            </div>
+        </div>
+        <div class="cancel" onclick="mainmenu()">
+            <img src="images/UI/cancel.png" width="100px" height="100px">
+        </div>
+    </div>
+
+    <div class="blackscreen">
+
+    </div>
+
+    <div id="infomenu">
+        <div class="en">
+            <div id="gameinfo">
+                <span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>All Fish</u></span>
+                <div>
+                    <img src="images/fish/rybka.png" width="40px" height="40px" />
+                    <p>&nbsp;Good Fish - gives 1* point</p>
+                    <p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.75&nbsp;</p>
+                    <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                    <p style="font-size: 75%; opacity: 0.75;">/fish)</p>
+                </div>
+                <div>
+                    <img src="images/fish/zla_rybka.png" width="40px" height="40px" />
+                    <p>&nbsp;Bad Fish - takes away 3* points</p>
+                    <p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.25&nbsp;</p>
+                    <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                    <p style="font-size: 75%; opacity: 0.75;">/fish)</p>
+                </div>
+                <div>
+                    <img src="images/fish/timer_rybka.png" width="40px" height="40px" />
+                    <p>&nbsp;Time Fish - adds 2* seconds to timer</p>
+                    <p style="font-size: 75%; opacity: 0.75;">&nbsp;(1&nbsp;</p>
+                    <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                    <p style="font-size: 75%; opacity: 0.75;">/fish)</p>
+                </div>
+                <div>
+                    <img src="images/fish/zlota_rybka.png" width="40px" height="40px" />
+                    <p>&nbsp;Goldfish - gives 10 points + 5 seconds</p>
+                    <p style="font-size: 75%; opacity: 0.75;">&nbsp;(2.5&nbsp;</p>
+                    <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                    <p style="font-size: 75%; opacity: 0.75;">/fish)</p>
+                </div>
+                <div>
+                    <img src="images/fish/smierc_rybka.png" width="40px" height="40px" />
+                    <p>&nbsp;Death Fish - takes away 10 points + 5 seconds</p>
+                    <p style="font-size: 75%; opacity: 0.75;">&nbsp;(2&nbsp;</p>
+                    <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                    <p style="font-size: 75%; opacity: 0.75;">/fish)</p>
+                </div>
+                <span style="color: white; font-size: 100%; font-weight: 100;"><i>*Can vary between different cats.</i></span>
+            </div>
+            <div id="info">
+                <span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>Creators + Contributors</u></span>
+                <div class="ig_link" onclick="location.href='https://www.instagram.com/wiktorniak/'">
+                    <img src="images/UI/instagram.png" width="40px" height="40px" />
+                    <p>&nbsp;&nbsp;wikt0r3k - Developer + Graphic Designer</p>
+                </div>
+                <div class="ig_link" onclick="location.href='https://www.instagram.com/anlaanka/'">
+                    <img src="images/UI/instagram.png" width="40px" height="40px" />
+                    <p>&nbsp;&nbsp;AnKaa - Graphic Designer</p>
+                </div>
+                <div class="ig_link">
+                    <p>&nbsp;&nbsp;Suzana - Ideas for cats 7-10</p>
+                </div>
+                <div class="ig_link">
+                    <p>&nbsp;&nbsp;Madzik_20 - Cat 11 concept art</p>
+                </div>
+                <div class="ig_link">
+                    <p>&nbsp;&nbsp;JasiuKoxYT - Bag with cats</p>
+                </div>
+            </div>
+        </div>
+        <div class="pl">
+            <div id="gameinfo">
+            <span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>Wszystkie Rybki</u></span>
+            <div>
+                <img src="images/fish/rybka.png" width="40px" height="40px" />
+                <p>&nbsp;Dobra Rybka - daje 1* punkt</p>
+                <p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.75&nbsp;</p>
+                <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                <p style="font-size: 75%; opacity: 0.75;">/rybka)</p>
+            </div>
+            <div>
+                <img src="images/fish/zla_rybka.png" width="40px" height="40px" />
+                <p>&nbsp;Zła Rybka - zabiera 3* punkty</p>
+                <p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.25&nbsp;</p>
+                <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                <p style="font-size: 75%; opacity: 0.75;">/rybka)</p>
+            </div>
+            <div>
+                <img src="images/fish/timer_rybka.png" width="40px" height="40px" />
+                <p>&nbsp;Rybka Czasu - dodaje 2* sekundy do licznika</p>
+                <p style="font-size: 75%; opacity: 0.75;">&nbsp;(1&nbsp;</p>
+                <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                <p style="font-size: 75%; opacity: 0.75;">/rybka)</p>
+            </div>
+            <div>
+                <img src="images/fish/zlota_rybka.png" width="40px" height="40px" />
+                <p>&nbsp;Złota Rybka - daje 10 punktów + 5 sekundy</p>
+                <p style="font-size: 75%; opacity: 0.75;">&nbsp;(2.5&nbsp;</p>
+                <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                <p style="font-size: 75%; opacity: 0.75;">/rybka)</p>
+            </div>
+            <div>
+                <img src="images/fish/smierc_rybka.png" width="40px" height="40px" />
+                <p>&nbsp;Rybka Śmierci - zabiera 10 punktów + 5 sekundy</p>
+                <p style="font-size: 75%; opacity: 0.75;">&nbsp;(2&nbsp;</p>
+                <img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />
+                <p style="font-size: 75%; opacity: 0.75;">/rybka)</p>
+            </div>
+            <span style="color: white; font-size: 100%; font-weight: 100;"><i>*Może się różnić pomiędzy kotami.</i></span>
+            </div>
+            <div id="info">
+                <span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>Twórcy + Kontrybutorzy</u></span>
+                <div class="ig_link" onclick="location.href='https://www.instagram.com/wiktorniak/'">
+                    <img src="images/UI/instagram.png" width="40px" height="40px" />
+                    <p>&nbsp;&nbsp;wikt0r3k - Programista + Grafik</p>
+                </div>
+                <div class="ig_link" onclick="location.href='https://www.instagram.com/anlaanka/'">
+                    <img src="images/UI/instagram.png" width="40px" height="40px" />
+                    <p>&nbsp;&nbsp;AnKaa - Grafik</p>
+                </div>
+                <div class="ig_link">
+                    <p>&nbsp;&nbsp;Suzana - Pomysły na koty 7-10</p>
+                </div>
+                <div class="ig_link">
+                    <p>&nbsp;&nbsp;Madzik_20 - Koncept kota 11</p>
+                </div>
+                <div class="ig_link">
+                    <p>&nbsp;&nbsp;JasiuKoxYT - Worek z kotami</p>
+                </div>
+            </div>
+        </div>
+        <div class="cancel" onclick="mainmenu()">
+            <img src="images/UI/cancel.png" width="100px" height="100px">
         </div>
     </div>
 
     <div id="flags">
-        <img src="images/flag_pl.png" class="flag" onclick="changeLanguage(0)" />&nbsp;
-        <img src="images/flag_en.png" class="flag" onclick="changeLanguage(1)" />&nbsp;
-        <img src="images/flag_de.png" class="flag" onclick="changeLanguage(2)" />&nbsp;
-        <img src="images/flag_es.png" class="flag" onclick="changeLanguage(3)" />&nbsp;
-        <img src="images/flag_ru.png" class="flag" onclick="changeLanguage(4)" />
+        <img src="images/flags/flag_pl.png" class="flag" onclick="changeLanguage(0)" />&nbsp;
+        <img src="images/flags/flag_en.png" class="flag" onclick="changeLanguage(1)" />&nbsp;
+        <!-- <img src="images/flags/flag_de.png" class="flag" onclick="changeLanguage(2)" />&nbsp;
+        <img src="images/flags/flag_es.png" class="flag" onclick="changeLanguage(3)" />&nbsp;
+        <img src="images/flags/flag_ru.png" class="flag" onclick="changeLanguage(4)" /> -->
     </div>
 
-    <div id="ig_wikt0r3k">
-        <img src="images/instagram.png" width="40px" height="40px" onclick="location.href='https://www.instagram.com/wiktorniak/'" />
-        <p>&nbsp;&nbsp;wikt0r3k - Developer</p>
-    </div>
-    <div id="ig_ankaa">
-        <p>AnKaa - Graphic Designer&nbsp;&nbsp;</p>
-        <img src="images/instagram.png" width="40px" height="40px" onclick="location.href='https://www.instagram.com/anlaanka/'" />
-    </div>
-
+    <script src="variables.js"></script>
+    <script src="save.js"></script>
     <script src="index.js"></script>
     <script src="movement.js"></script>
 </body>

@@ -1,32 +1,36 @@
 addEventListener("keydown", function(e) {
+    console.log(e.code);
     switch(e.code) {
-        case "KeyW":
+        case "KeyW": case "ArrowUp":
             vy = -speed*elapsed*deltaTime;
             break;
-        case "KeyS":
+        case "KeyS": case "ArrowDown":
             vy = speed*elapsed*deltaTime;
             break;
-        case "KeyD":
+        case "KeyD": case "ArrowRight":
             vxr = speed*elapsed*deltaTime;
             break;
-        case "KeyA":
+        case "KeyA": case "ArrowLeft":
             vxl = speed*elapsed*deltaTime;
             break;
+    }
+    if((e.ctrlKey&& e.shiftKey && (e.code == "KeyC" || e.code == "KeyI")) || e.code == "F12" ) {
+        // e.preventDefault();
     }
 });
 
 addEventListener("keyup", function(e) {
     switch(e.code) {
-        case "KeyW":
+        case "KeyW": case "ArrowUp":
             vy = 0;
             break;
-        case "KeyS":
+        case "KeyS": case "ArrowDown":
             vy = 0;
             break;
-        case "KeyD":
+        case "KeyD": case "ArrowRight":
             vxr = 0;
             break;
-        case "KeyA":
+        case "KeyA": case "ArrowLeft":
             vxl = 0;
             break;
     }
