@@ -274,11 +274,11 @@ function game() {
             gameState.chances.timeFish += 5;
             break;
         case 6:
-            chances[2] = 1;
+            gameState.chances.goldFish = 1;
             break;
         case 7:
             gameState.cat.size = 37.5;
-            gameState.collectibles_limit = 17;
+            gameState.collectibles_limit = 1000;
             break;
         case 8:
             gameState.cat.size = 55;
