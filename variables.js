@@ -446,11 +446,9 @@ const UI = {
         },
         creators_contributors: {
             title: "Creators + Contributors",
-            wikt0r3k: "wikt0r3k - Developer + SFX + Graphic Designer",
+            wikt0r3k: "wikt0r3k - Developer + Soundtrack",
             ankaa: "AnKaa - Graphic Designer",
-            suzana: "Suzana - Cats 7-10",
-            madzik_20: "Madzik_20 - Concept art for cat 11",
-            JasiuKoxYT: "JasiuKoxYT - Bag with a cat design",
+            vgrechi: "Vgrechisher - SFX",
         },
         gameover: {
             your_points: "Your points: ",

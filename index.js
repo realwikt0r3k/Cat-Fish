@@ -468,13 +468,7 @@ function infomenu() {
         `<p>&nbsp;&nbsp;${UI[saveState.lang].creators_contributors.ankaa}</p>` +
         `</div>` +
         `<div class="ig_link">` +
-        `<p>&nbsp;&nbsp;${UI[saveState.lang].creators_contributors.suzana}</p>` +
-        `</div>` +
-        `<div class="ig_link">` +
-        `<p>&nbsp;&nbsp;${UI[saveState.lang].creators_contributors.madzik_20}</p>` +
-        `</div>` +
-        `<div class="ig_link">` +
-        `<p>&nbsp;&nbsp;${UI[saveState.lang].creators_contributors.JasiuKoxYT}</p>` +
+        `<p>&nbsp;&nbsp;${UI[saveState.lang].creators_contributors.vgrechi}</p>` +
         `</div>` +
         `</div>` +
         `<div class="cancel" onclick="mainmenu()">` +
