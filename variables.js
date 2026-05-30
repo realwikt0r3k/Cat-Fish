@@ -167,8 +167,10 @@ class Point {
 const player = new Player();
 
 const background_music = new Audio("audio/bg_music.mp3");
-background_music.volume = 0.3;
+background_music.volume = 0.65;
 background_music.loop = true;
+background_music.preservesPitch = false;
+background_music.playbackRate = 1.15;
 background_music.muted = !saveState.music;
 
 const SFX = {
@@ -223,20 +225,20 @@ const SFX = {
     INGAME: {
         pickup: {
             coin: {
-                source: "audio/pickup/coin.wav",
-                volume: 0.6,
+                source: "audio/pickup/coin.mp3",
+                volume: 0.45,
                 pitch_preserve: true,
                 playback_rate: 1
             },
             fish: {
                 source: "audio/pickup/fish.mp3",
-                volume: 0.6,
+                volume: 0.3,
                 pitch_preserve: false,
                 playback_rate: (Math.random() / 2) + 1.25
             },
             bad: {
                 source: "audio/pickup/bad.mp3",
-                volume: 0.6,
+                volume: 0.3,
                 pitch_preserve: false,
                 playback_rate: (Math.random() / 2) + 1.25
             },
@@ -247,8 +249,8 @@ const SFX = {
                 playback_rate: 1
             },
             freeze: {
-                source: "audio/pickup/freeze.wav",
-                volume: 0.7,
+                source: "audio/pickup/freeze.mp3",
+                volume: 0.8,
                 pitch_preserve: true,
                 playback_rate: 1
             },
@@ -288,6 +290,7 @@ const COLLECTIBLES = {
             sound: SFX.INGAME.pickup.fish,
             onCollect() {
                 gameState.timer += gameState.timeFishBonus;
+                if(gameState.timer > 25) gameState.timer = 25;
                 gameState.collectibles.timeFish++;
                 document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
             },
@@ -304,6 +307,7 @@ const COLLECTIBLES = {
             sound: SFX.INGAME.pickup.coin,
             onCollect() {
                 gameState.timer += 5;
+                if(gameState.timer > 25) gameState.timer = 25;
                 gameState.counter += 10;
                 gameState.collectibles.goldFish++;
                 document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
