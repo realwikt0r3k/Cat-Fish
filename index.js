@@ -212,7 +212,7 @@ function changeCat(event) {
 }
 
 function startGame(startTime) {
-    playSound(SFX.UI.click);
+    playSound(SFX.MISC.COUNTDOWN[`count${startTime}`]);
     showPanel("#startingtimer");
     document.querySelector("#startingtimer").textContent = startTime;
     startTime -= 1;
@@ -230,7 +230,7 @@ function game() {
     clearInterval(timerInterval);
 
     showPanel("#game");
-    playSound(SFX.UI.click);
+    playSound(SFX.MISC.GAME_START);
 
     gameState.cat.x = 475;
     gameState.cat.y = 300;
@@ -278,7 +278,7 @@ function game() {
             break;
         case 7:
             gameState.cat.size = 37.5;
-            gameState.collectibles_limit = 1000;
+            gameState.collectibles_limit = 17;
             break;
         case 8:
             gameState.cat.size = 55;
