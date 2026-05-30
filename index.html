@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cat-Fish is a game, where you control a cat to collect as many fish as you can! You can collect coins (or get them by just playing), to buy better cats!">
+    <meta name="keywords" content="catfish, web game, wikt0r3k, cats, polish web games">
+    <meta name="author" content="wikt0r3k">
+
+    <meta name="twitter:title" content="Cat-Fish">
+    <meta name="twitter:description" content="Cat-Fish is a game, where you control a cat to collect as many fish as you can! You can collect coins (or get them by just playing), to buy better cats!">
+    <meta name="twitter:image" content="images/cat.ico">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <meta content="Cat-Fish" property="og:title" />
+    <meta content="Cat-Fish is a game, where you control a cat to collect as many fish as you can! You can collect coins (or get them by just playing), to buy better cats!" property="og:description" />
+    <meta content="https://wikt0r3k.pl/catfish/" property="og:url" />
+    <meta content="images/cat.ico" property="og:image" />
+    <meta content="#43B581" data-react-helmet="true" name="theme-color" />
+    
+    <title>Cat-Fish</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_mobile.css">
+    <link rel="shortcut icon" href="images/cat.ico" type="image/x-icon">
+</head>
+<body>
+    <p id="startingtimer"></p>
+
+    <div id="game">
+        <canvas id="canvas" width="1000px" height="650px"></canvas>
+        <p id="counter">Your points: 0</p>
+        <p id="timer">Time left: 15</p>
+
+        <img src="images/cats/cat1.png" id="cat" hidden="true" />
+        <img src="images/fish/rybka.png" id="goodfish" hidden="true" />
+        <img src="images/fish/zla_rybka.png" id="badfish" hidden="true" />
+        <img src="images/fish/timer_rybka.png" id="timefish" hidden="true" />
+        <img src="images/fish/zlota_rybka.png" id="goldfish" hidden="true" />
+        <img src="images/fish/smierc_rybka.png" id="deadfish" hidden="true" />
+        <img src="images/UI/moneta.png" id="coin" hidden="true" />
+
+        <p id="randomEvent"></p>
+
+        <div id="mobilecontrols">
+            <img src="images/UI/arrow_up.png" width="12vw" height="12vw" id="moveup" class="arrow">
+            <img src="images/UI/arrow_down.png" width="12vw" height="12vw" id="movedown" class="arrow">
+            <img src="images/UI/arrow_left.png" width="12vw" height="12vw" id="moveleft" class="arrow">
+            <img src="images/UI/arrow_right.png" width="12vw" height="12vw" id="moveright" class="arrow">
+        </div>
+    </div>
+
+    <div id="gameover">
+        <div id="endstats">
+            <p id="endcounter">Your points: 0</p>
+            <p id="endcoins">Your coins: 0 </p>
+            <p></p>
+        </div>
+
+        <div class="buttons">
+            <div onclick="startGame(3)">
+                <img src="images/UI/replay.png" width="125px" height="125px" class="main"/>
+            </div>
+
+            <div onclick="mainmenu()">
+                <img src="images/UI/mainmenu.png" width="100px" height="100px"/>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainmenu">
+        <p id="mobile">Mobile is not supported.</p>
+        <div id="pc">
+            <div id="logo">
+                <img src="images/logo.png" width="800px"/>
+            </div>
+            <div class="buttons">
+                <div onclick="collectDaily()">
+                    <img id="dailyreward" src="images/UI/daily_reward.png" width="100px" height="100px"/>
+                </div>
+                <div onclick="infomenu()">
+                    <img src="images/UI/info.png" width="100px" height="100px"/>
+                </div>
+                <div onclick="startGame(3)">
+                    <img src="images/UI/start.png" width="125px" height="125px" class="main"/>
+                </div>
+                <div onclick="catmenu()">
+                    <img src="images/UI/catsmenu.png" width="100px" height="100px"/>
+                </div>
+                <div onclick="questmenu()">
+                    <img src="images/UI/achievements.png" width="100px" height="100px"/>
+                </div>
+            </div>
+            <p id="splashtext"></p>
+        </div>
+    </div>
+
+    <div id="catmenu">
+        <div id="coinsshop"> </div>
+        <div id="cats"></div>
+        <div id="catdescription">
+            <p>Loading...</p>
+        </div>
+        <div class="bags">
+            <div class="bag" onclick="openCase()">
+                <img src="images/cats/bag/cat_bag.png" width="80px" height="80px" />
+                <img src="images/cats/costs/cost_250.png" class="bag_cost" width="80px" height="80px" />
+            </div>
+        </div>
+        <div id="stats">
+            
+        </div>
+        <div class="cancel" onclick="mainmenu()">
+            <img src="images/UI/cancel.png" width="100px" height="100px">
+        </div>
+    </div>
+
+    <div class="blackscreen">
+
+    </div>
+
+    <div id="infomenu"></div>
+
+    <div id="questsmenu">
+        <div class="en">
+            <div id="quests">
+                <span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>Your quests:</u></span>
+                <div class="quest">Lorem Ipsum</div>
+                <div class="quest">Lorem Ipsum</div>
+                <div class="quest">Lorem Ipsum</div>
+            </div>
+        </div>
+        <div class="cancel" onclick="mainmenu()">
+            <img src="images/UI/cancel.png" width="100px" height="100px">
+        </div>
+    </div>
+
+    <div id="flags" style="visibility: hidden;">
+        <img src="images/flags/flag_pl.png" class="flag" />&nbsp;
+        <img src="images/flags/flag_en.png" class="flag" />&nbsp;
+        <!-- <img src="images/flags/flag_de.png" class="flag" onclick="changeLanguage(2)" />&nbsp;
+        <img src="images/flags/flag_es.png" class="flag" onclick="changeLanguage(3)" />&nbsp;
+        <img src="images/flags/flag_ru.png" class="flag" onclick="changeLanguage(4)" /> -->
+    </div>
+
+    <div id="sounds">
+        <img src="images/UI/music.png" class="sound" id="music" onclick="mute(1)" />&nbsp;
+        <img src="images/UI/sfx.png" class="sound" id="sfx" onclick="mute(2)" />&nbsp;
+    </div>
+
+    <script src="variables.js"></script>
+    <script src="save.js"></script>
+    <script src="index.js"></script>
+    <script src="movement.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+[Quests]
+Rotational:
+- Earn 50 coins in a single game -> 50 coins
+- Collect a Goldfish -> 200 coins
+- Collect a Deathfish -> 150 coins
+- Collect a total of 100 fish in one game -> 150 coins
+- Collect a total of 30 Good Fish in one game -> 150 coins
+- Finish a game with at least 10 fish and no bad one -> 250 coins
+- Collect your daily reward -> 50 coins
+- Open a bag -> 50 coins
+- Roll a RARE cat -> 250 coins
+- Roll a EPIC cat -> 500 coins
+- Roll a MYTHIC cat -> 1000 coins
+- Get at least 50 points -> 50 coins
+- Get at least 100 points -> 150 coins
+- Get at least 150 points -> 250 coins
+- Get at least 200 points -> 500 coins
+- Beat your personal record -> 100 coins
+- Collect a total of 500 fish -> 100 coins
+- Collect a total 100 coins -> 50 coins
+- Collect a total 50 Time Fish
+- Play a game without collecting any Good Fish (min. 5 fish collected)
+- Collect daily reward for 10 days straight
+
+Event Quest:
+- 

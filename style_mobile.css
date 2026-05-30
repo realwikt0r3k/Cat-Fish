@@ -1,0 +1,455 @@
+* {
+    user-select: none;
+    overflow: hidden;
+}
+
+body {
+    background-image: url("images/background_tile.png");
+    background-repeat: repeat;
+    background-color: rgba(0, 0, 0, 0.5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@media only screen and (max-width: 767px) {
+    #mobile {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        font-size: calc(3vw + 2vh);
+        align-items: center;
+        justify-content: center;
+        color:  #8cd1ff;
+    }
+
+    #pc {
+        display: none;
+    }
+
+    canvas {
+        position: absolute;
+        top: 35%;
+        left: 50%;
+        width: 100vw;
+        transform: translate(-50%, -50%);
+        border: 2px #8cd1ff solid;
+        filter: drop-shadow(0 0 1.5vw black);
+        background-color: rgba(0, 0, 0, 0.25);
+    }
+
+    #counter {
+        position: absolute;
+        top: 8%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #8cd1ff;
+        font-weight: 700;
+        font-size: 150%;
+        width: 100vw;
+    }
+
+    #endcounter {
+        position: absolute;
+        top: 0%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #8cd1ff;
+        font-weight: 700;
+        font-size: 175%;
+        width: 90vw;
+    }
+
+    #endcoins {
+        position: absolute;
+        top: 7.5%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #8cd1ff;
+        font-weight: 700;
+        font-size: 175%;
+        width: 90vw;
+    }
+
+    #coinsshop {
+        position: absolute;
+        top: 12.5%;
+        left: 50%;
+        object-fit: contain;
+        display: flex;    
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #8cd1ff;
+        font-weight: 700;
+        width: 90vw;
+    }
+
+    #coinsshop > img {
+        margin: 0 0 0 10px;
+    }
+
+    #timer {
+        position: absolute;
+        bottom: 35%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #8cd1ff;
+        font-weight: 400;
+        font-size: 90%;
+    }
+
+    #mobilecontrols {
+        display: inline;
+        width: 60vw;
+        height: 60vw;
+        position: absolute;
+        top: 80%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        touch-action: none;
+    }
+
+    .arrow {
+        width: 20vw;
+        height: 20vw;
+        filter: drop-shadow(0 0 1.5vw black);
+        touch-action: none;
+    }
+
+    #moveup {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #movedown {
+        position: absolute;
+        top: 80%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #moveleft {
+        position: absolute;
+        top: 50%;
+        left: 20%;
+        transform: translate(-50%, -50%);
+    }
+
+    #moveright {
+        position: absolute;
+        top: 50%;
+        left: 80%;
+        transform: translate(-50%, -50%);
+    }
+
+    .arrow:active {
+        opacity: 0.75;
+    }
+
+    #logo {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        width: 300px;
+        object-fit: contain;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 0 1.5vw black);
+    }
+
+    #logo > img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .ig_link {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        font-size: 95%;
+        font-weight: 300;
+        filter: invert(100%);
+    }
+
+    .ig_link:hover {
+        opacity: 0.75;
+    }
+
+    .ig_link > img {
+        width: 20px;
+        height: 20px;
+    }
+
+    #loading {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #gameover {
+        width: 100%;
+        height: 100%;
+        display: none;
+    }
+
+    #mainmenu {
+        display: none;
+    }
+
+    #game {
+        width: 100%;
+        height: 100%;
+        display: none;
+    }
+
+    #infomenu {
+        display: none;
+    }
+
+    #info {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 1000px;
+        height: 650px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    #info > div {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 75%;
+        left: 50%;
+        width: 90vw;
+        height: 35vw;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 0 1.5vw black);
+    }
+
+    .buttons > div {
+        width: 25vw;
+        height: 25vw;
+        object-fit: contain;
+    } 
+
+    .buttons > div:has(img.main) {
+        width: 30vw;
+        height: 30vw;
+        object-fit: contain;
+    } 
+
+    .buttons > div > img {
+        width: 100%;
+        height: 100%;
+    } 
+
+    .cancel {
+        position: absolute;
+        left: 50%;
+        bottom: 0%;
+        transform: translate(-50%, -50%);
+        filter: drop-shadow(0 0 1.5vw black);
+        width: 25vw;
+        height: 25vw;
+        touch-action: none;
+    }
+
+    .cancel > img {
+        width: 100%;
+        height: 100%;
+    }
+
+    #cats {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        width: 90vw;
+        height: 90vw;
+        border: 2px #8cd1ff solid;
+        filter: drop-shadow(0 0 1.5vw black);
+        background-color: rgba(0, 0, 0, 0.25);
+        overflow-y: auto;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        align-items: center;
+        transform: translate(-50%, -50%);
+        display: flex;
+    }
+
+    .skin {
+        margin: 20px;
+        object-fit: contain;
+        width: 30vw;
+    }
+
+    .skin > img {
+        width: 100%;
+        height: 100%;
+    }
+
+    #flags {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        width: 50vw;
+        height: 10vw;
+        position: absolute;
+        top: 5%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #flags > img {
+        width: 12vw;
+    }
+
+    #catskin {
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #8cd1ff;
+        font-weight: 700;
+        font-size: 250%;
+    }
+
+    #skins {
+        display: flex;
+        position: absolute;
+        top: 80%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .skin {
+        cursor: pointer;
+        position: relative;
+    }
+
+    .locked {
+        filter: brightness(150%);
+        position: absolute;
+        width: 75%;
+        height: 75%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .card {
+        opacity: 0.6;
+        position: relative;
+        background-color: azure;
+        width: 150px;
+        height: 225px;
+    }
+
+    .card > .cardtop {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 30px;
+    }
+
+    .card > .cardbottom {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 50px;
+    }
+
+    .card.common > .cardtop, .card.common > .cardbottom {
+        background-color: aquamarine;
+    }
+
+    .card.rare > .cardtop, .card.rare > .cardbottom {
+        background-color: dodgerblue;
+    }
+
+    .card.legendary > .cardtop, .card.legendary > .cardbottom {
+        background-color: gold;
+    }
+
+    .card.mythic > .cardtop, .card.mythic > .cardbottom {
+        background-color: red;
+    }
+
+    .card.default > .cardtop, .card.default > .cardbottom {
+        background-color: cornflowerblue;
+    }
+
+    #endstats {
+        object-fit: contain;
+        font-size: 18px;
+        font-weight: 700;
+        color: #8cd1ff;
+        position: absolute;
+        width: 70vw;
+        height: 90vh;
+        top: 60%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    #endstats > ul {
+        position: absolute;
+        top: 32.5%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        list-style-type: none;
+    }
+
+    li > img {
+        width: 18px;
+    }
+
+    #endcoins > img {
+        width: 20px;
+    }
+
+    #coinsshop > img {
+        width: 24px;
+    }
+
+    #catmenu {
+        display: none;
+    }
+
+    #catdescription {
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90vw;
+        height: 10vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        font-size: 17px;
+        color: #8cd1ff;
+        font-weight: 300;
+        line-height: 15px;
+    }
+}

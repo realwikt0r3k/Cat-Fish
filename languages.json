@@ -1,0 +1,111 @@
+{
+    "UI": [
+        {
+            "pl": [
+                {"coins": "Twoje monety: "},
+                {"points": "Twoje punkty: "},
+                {"timer": "Pozostały czas: "}
+            ]
+        },
+        {
+            "en": [
+                {"coins": "Your coins: "},
+                {"points": "Your points: "},
+                {"timer": "Time left: "}
+            ]
+        }
+    ],
+
+    "cats": [
+        {
+            "pl": [
+                {"cat1": "Twój podstawowy kot. Nie ma ani dodatkowych umiejętności ani nic."},
+                {"cat2": [
+                    {"buff": "+ 10% szybszy kot"},
+                    {"debuff": "- 5% mniej monet"}
+                ]},
+                {"cat3": [
+                    {"buff": "+ 5% więcej szans na Monetę"},
+                    {"debuff": "- 5% mniej szans na Rybkę Czasu"}
+                ]},
+                {"cat4": [
+                    {"buff": "+ 5% więcej szans na Rybkę Czasu"},
+                    {"debuff": "- 5% mniej szans na Monetę"}
+                ]},
+                {"cat5": [
+                    {"buff": "+ 10% szansy na to, że Zła Rybka da 3 punkty zamiast je zabrać"},
+                    {"debuff": "- 5% szansy na to, że Dobra Rybka nie da punktu"}
+                ]},
+                {"cat6": [
+                    {"buff": "+ 10% szansy na PODWÓJNĄ i 5% na POTRÓJNĄ liczbę punktów z Dobrej Rybki"},
+                    {"debuff": "- 5% szansy na to, że Zła Rybka zabierze 10 punktów"}
+                ]},
+                {"cat7": [
+                    {"buff": "+ 100% więcej szansy na Złotą Rybkę"},
+                    {"debuff": "- 20% szansy na to, że Dobra Rybka zabierze punkt"}
+                ]},
+                {"cat8": [
+                    {"buff": "+ 5 dodatkowych rybek"},
+                    {"debuff": "- 25% mniejszy kot"}
+                ]},
+                {"cat9": [
+                    {"buff": "+ 10% większy kot"},
+                    {"debuff": "- 5% wolniejszy kot"}
+                ]},
+                {"cat10": [
+                    {"buff": "+ 5 dodatkowych sekund na start"},
+                    {"debuff": "- 1 Dobra Rybka zostaje Złą Rybką"}
+                ]},
+                {"cat11": [
+                    {"buff": "+ Rybka Czasu daje 1 sekundę więcej"},
+                    {"debuff": "- Masz tylko 10 sekund na start"}
+                ]}
+            ]
+        },
+        {
+            "en": [
+                {"cat1": "Your default cat. Does not have any additional abilities etc."},
+                {"cat2": [
+                    {"buff": "+ 10% faster cat"},
+                    {"debuff": "- 5% less coins"}
+                ]},
+                {"cat3": [
+                    {"buff": "+ 5% more chance for a Coin"},
+                    {"debuff": "- 5% less chance for Time Fish"}
+                ]},
+                {"cat4": [
+                    {"buff": "+ 5% more chance for Time Fish"},
+                    {"debuff": "- 5% less chance for a Coin"}
+                ]},
+                {"cat5": [
+                    {"buff": "+ 10% chance for Bad Fish to give 3 points instead of taking them"},
+                    {"debuff": "- 5% chance for Good Fish to not give any point"}
+                ]},
+                {"cat6": [
+                    {"buff": "+ 10% chance for DOUBLE and 5% for TRIPLE points from Good Fish"},
+                    {"debuff": "- 5% chance for Bad Fish to take 10 points"}
+                ]},
+                {"cat7": [
+                    {"buff": "+ 100% more chance for Gold Fish"},
+                    {"debuff": "- 20% chance for Good Fish to take 1 point"}
+                ]},
+                {"cat8": [
+                    {"buff": "+ 5 additional fish"},
+                    {"debuff": "- 25% smaller cat"}
+                ]},
+                {"cat9": [
+                    {"buff": "+ 10% bigger cat"},
+                    {"debuff": "- 5% slower cat"}
+                ]},
+                {"cat10": [
+                    {"buff": "+ 5 additional seconds at start"},
+                    {"debuff": "- 1 Good Fish becomes a Bad Fish"}
+                ]},
+                {"cat11": [
+                    {"buff": "+ Time Fish gives 1 second more"},
+                    {"debuff": "- You start with only 10 seconds"}
+                ]}
+            ]
+        }
+    ]
+}
