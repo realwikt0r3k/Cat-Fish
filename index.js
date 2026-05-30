@@ -47,7 +47,10 @@ function changeLanguage(selectLanguage) {
                 `</p>`
             break;
     }
-    document.querySelector("#endstats").innerHTML = `<p><p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter}</p>` +
+
+    let personal_record = saveState.stats.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
+    
+    document.querySelector("#endstats").innerHTML = `<p><p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`
         `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>` +
         `<span style="font-size: 75%">${UI[saveState.lang].gameover.good} ${gameState.collectibles.goodFish} <img src="images/fish/rybka.png" width="20" height="20" /></span>` +
         `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.bad} ${gameState.collectibles.badFish} <img src="images/fish/zla_rybka.png" width="20" height="20" /></span>` +
@@ -127,6 +130,7 @@ function changeLanguage(selectLanguage) {
         `<p> - ${UI[saveState.lang].stats.gold} ${saveState.stats.collectibles.goldFish}</p>` +
         `<p> - ${UI[saveState.lang].stats.death} ${saveState.stats.collectibles.deathFish}</p>` +
         `<p> - ${UI[saveState.lang].stats.coins} ${saveState.stats.collectibles.coins}</p>` +
+        `<p class="underlined">${UI[saveState.lang].stats.personal_best} ${saveState.stats.highestScore}</p>` +
         `<p class="underlined">${UI[saveState.lang].stats.all} ${saveState.stats.collectibles.all}</p>` +
         `<p class="underlined">${UI[saveState.lang].stats.games} ${saveState.stats.games}</p>` +
         `<p class="underlined">${UI[saveState.lang].stats.quests} ${saveState.stats.quests}</p>` +
@@ -234,6 +238,11 @@ function startGame(startTime) {
 }
 
 function game() {
+    const collectibles = [];
+
+    cancelAnimationFrame(animationFrame);
+    clearInterval(timerInterval);
+
     showPanel("#game");
     playSound(SFX.UI.click);
 
@@ -245,6 +254,8 @@ function game() {
         gameState.collectibles[stat] = 0;
     })
 
+    gameState.collectibles_limit = 12;
+    gameState.collectibles_bad_limit = 5;
     gameState.timer = 15;
     gameState.cat.size = 50;
     gameState.cat.speed = 7;
@@ -276,6 +287,7 @@ function game() {
             break;
         case 7:
             gameState.cat.size = 45;
+            gameState.collectibles_limit = 17;
             break;
         case 8:
             gameState.cat.size = 55;
@@ -283,6 +295,7 @@ function game() {
             break;
         case 9:
             gameState.timer = 20;
+            gameState.collectibles_bad_limit = 6;
             break;
         case 10:
             gameState.timeFishBonus = 3;
@@ -328,15 +341,16 @@ function game() {
     changeCat(saveState.cat);
 
     gameState.canPlay = true;
-    let interval;
-
     function time() {
+        elapsed = 0;
+
         gameState.timer--;
         document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + gameState.timer;
         if (gameState.timer < 1) {
-            gameState.canPlay = false;
-            clearInterval(interval);
+            clearInterval(timerInterval);
+            cancelAnimationFrame(animationFrame);
 
+            gameState.canPlay = false;
             let addCoins = parseInt(
                 ((gameState.collectibles.goodFish * 0.75 +
                     gameState.collectibles.badFish * 0.25 +
@@ -366,7 +380,10 @@ function game() {
 
             showPanel("#gameover");
 
-            document.querySelector("#endstats").innerHTML = `<p><p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter}</p>` +
+            const personal_record = saveState.stats.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
+            if (saveState.stats.highestScore < gameState.counter) saveState.stats.highestScore = gameState.counter;
+
+            document.querySelector("#endstats").innerHTML = `<p><p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>` +
                 `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.stats.collectibles.coins} <img src="images/UI/moneta.png"/></p>` +
                 `<span style="font-size: 75%">${UI[saveState.lang].gameover.good} ${gameState.collectibles.goodFish} <img src="images/fish/rybka.png" width="20" height="20" /></span>` +
                 `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.bad} ${gameState.collectibles.badFish} <img src="images/fish/zla_rybka.png" width="20" height="20" /></span>` +
@@ -403,34 +420,12 @@ function game() {
         }
     }
 
-    let point = new Point(true, "Time");
-    let point2 = new Point(false);
-    let point3 = new Point(true);
-    let point4 = new Point(false);
-    let point5 = new Point(true);
-    let point6 = new Point(true);
-    let point7 = new Point(true);
-    let point8 = new Point(false);
-    let point9 = new Point(false);
-    let point10 = new Point(true);
-    let point11 = new Point(false);
-    let point12;
-    let point13;
-    let point14;
-    let point15;
-    let point16;
-    let point17;
-
-    if (saveState.cat == 9) point12 = new Point(false);
-    else point12 = new Point(true);
-    if (saveState.cat == 7) {
-        point13 = new Point(true);
-        point14 = new Point(true);
-        point15 = new Point(true);
-        point16 = new Point(false);
-        point17 = new Point(false);
+    for(i=1;i<=gameState.collectibles_limit;i++) {
+        console.log(`${i} / ${gameState.collectibles_limit}`)
+        collectibles.push(
+            new Point((i < gameState.collectibles_bad_limit) ? false : true, (i == gameState.collectibles_limit) ? "Time" : undefined)
+        )
     }
-
 
     let startTime = performance.now();
 
@@ -442,32 +437,15 @@ function game() {
         if (gameState.canPlay) {
             ctx.clearRect(0, 0, c.width, c.height);
             player.move();
-            point.update();
-            point2.update();
-            point3.update();
-            point4.update();
-            point5.update();
-            point6.update();
-            point7.update();
-            point8.update();
-            point9.update();
-            point10.update();
-            point11.update();
-            point12.update();
-            if (saveState.cat == 7) {
-                point13.update();
-                point14.update();
-                point15.update();
-                point16.update();
-                point17.update();
-            }
+            collectibles.forEach(collectible => {
+                collectible.update();
+            })
             document.querySelector("#counter").textContent = UI[saveState.lang].ingame.your_points + " " + gameState.counter;
         }
-        requestAnimationFrame(update);
+        animationFrame = requestAnimationFrame(update);
     }
-
-    update();
-    interval = setInterval(time, 1000);
+    animationFrame = requestAnimationFrame(update);
+    timerInterval = setInterval(time, 1000);
 }
 
 function mainmenu() {
@@ -605,6 +583,7 @@ function catmenu() {
         `<p> - ${UI[saveState.lang].stats.gold} ${saveState.stats.collectibles.goldFish}</p>` +
         `<p> - ${UI[saveState.lang].stats.death} ${saveState.stats.collectibles.deathFish}</p>` +
         `<p> - ${UI[saveState.lang].stats.coins} ${saveState.stats.collectibles.coins}</p>` +
+        `<p class="underlined">${UI[saveState.lang].stats.personal_best} ${saveState.stats.highestScore}</p>` +
         `<p class="underlined">${UI[saveState.lang].stats.all} ${saveState.stats.collectibles.all}</p>` +
         `<p class="underlined">${UI[saveState.lang].stats.games} ${saveState.stats.games}</p>` +
         `<p class="underlined">${UI[saveState.lang].stats.quests} ${saveState.stats.quests}</p>` +

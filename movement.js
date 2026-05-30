@@ -42,16 +42,16 @@ addEventListener("contextmenu", function(event) {
 addEventListener("touchstart", function(event) {
     switch(event.target.id) {
         case "moveup":
-            vy = -gameState.cat.speed*elapsed*deltaTime;
+            vy = -1;
             break;
         case "movedown":
-            vy = gameState.cat.speed*elapsed*deltaTime;
+            vy = 1;
             break;
         case "moveright":
-            vxr = gameState.cat.speed*elapsed*deltaTime;
+            vxr = 1;
             break;
         case "moveleft":
-            vxl = gameState.cat.speed*elapsed*deltaTime;
+            vxl = 1;
             break;
     }
 })

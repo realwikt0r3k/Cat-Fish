@@ -5,15 +5,18 @@ const ctx = c.getContext("2d");
 const _catCounter = 12;
 const _questCounter = 6;
 
+let animationFrame = null, timerInterval = null;
 let vxr = 0, vxl = 0, vy = 0, elapsed;
-const deltaTime = 1000/144;
 
+const deltaTime = 1000/144;
 const catCost = [0, 150, 150, 150, 150, 300, 300, 300, 300, 500, 500, 0];
 
 chances = [90, 85, 0.5, 80, 75]; //time, gold, coin, time after gold, coin after gold
 
 let gameState = {
     canPlay: false,
+    collectibles_limit: 12,
+    collectibles_bad_limit: 5,
     timer: 15,
     cat: {
         x: 475,
@@ -57,6 +60,7 @@ let saveState = {
             coins: 0,
             all: 0
         },
+        highestScore: 0,
         games: 0,
         quests: 0,
         bags: 0
@@ -337,7 +341,8 @@ const UI = {
             all: "All:",
             games: "Played games:",
             quests: "Completed quests:",
-            bags: "Opened bags:"
+            bags: "Opened bags:",
+            personal_best: "Personal best:"
         },
         infos: {
             all_fish: "All fish:",
@@ -369,6 +374,7 @@ const UI = {
             all_ingame: "Total fish:",
             coins: "Collected coins: ",
             items: "items collected, which converts into:",
+            personal_best: "New personal best!"
         },
         cats: {
             cat_description: {
@@ -449,7 +455,8 @@ const UI = {
             all: "Wszystko:",
             games: "Zagrane gry:",
             quests: "Ukończone zadania:",
-            bags: "Otwarte worki:"
+            bags: "Otwarte worki:",
+            personal_best: "Personal best:"
         },
         infos: {
             all_fish: "Wszystkie ryby:",
@@ -481,6 +488,7 @@ const UI = {
             all_ingame: "Rybek łącznie:",
             coins: "Zebrane monety: ",
             items: "zebranych rzeczy, co w przeliczeniu wynosi:",
+            personal_best: "Nowy rekord!"
         },
         cats: {
             cat_description: {

@@ -1,9 +1,9 @@
 function saveGame() {
-    localStorage.setItem("catfish_save_3", JSON.stringify(saveState));
+    localStorage.setItem("catfish_save_4", JSON.stringify(saveState));
 }
 
 function loadGame() {
-    const saved = localStorage.getItem("catfish_save_3");
+    const saved = localStorage.getItem("catfish_save_4");
     if (saved) Object.assign(saveState, JSON.parse(saved));
     else saveState.unlockedCats[0] = true;
 
