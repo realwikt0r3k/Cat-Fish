@@ -2,7 +2,7 @@
 const c = document.querySelector("#canvas");
 const ctx = c.getContext("2d");
 
-const _catCounter = 12;
+const _catCounter = 14;
 const _questCounter = 17;
 
 let animationFrame = null, timerInterval = null;
@@ -172,6 +172,34 @@ background_music.loop = true;
 background_music.muted = !saveState.music;
 
 const SFX = {
+    MISC: {
+        COUNTDOWN: {
+            count3: {
+                source: "audio/countdown.mp3",
+                volume: 0.85,
+                pitch_preserve: true,
+                playback_rate: 1
+            },
+            count2: {
+                source: "audio/countdown.mp3",
+                volume: 0.9,
+                pitch_preserve: false,
+                playback_rate: 1.5
+            },
+            count1: {
+                source: "audio/countdown.mp3",
+                volume: 1,
+                pitch_preserve: false,
+                playback_rate: 2
+            },
+        },
+        GAME_START: {
+            source: "audio/start_game.mp3",
+            volume: 1,
+            pitch_preserve: false,
+            playback_rate: 1.25
+        },
+    },
     UI: {
         click: {
             source: "audio/UI/button_click.wav",
@@ -201,7 +229,13 @@ const SFX = {
                 playback_rate: 1
             },
             fish: {
-                source: "audio/pickup/fish.wav",
+                source: "audio/pickup/fish.mp3",
+                volume: 0.6,
+                pitch_preserve: false,
+                playback_rate: (Math.random() / 2) + 1.25
+            },
+            bad: {
+                source: "audio/pickup/bad.mp3",
                 volume: 0.6,
                 pitch_preserve: false,
                 playback_rate: (Math.random() / 2) + 1.25
@@ -286,7 +320,7 @@ const COLLECTIBLES = {
         },
         Bad: {
             point: false,
-            sound: SFX.INGAME.pickup.fish,
+            sound: SFX.INGAME.pickup.bad,
             image: () => document.querySelector("#badfish"),
             onCollect() {
                 switch (cat) {
