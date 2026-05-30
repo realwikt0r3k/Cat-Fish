@@ -8,7 +8,7 @@ A simple **PC** web game where you control a cat to get as many fish as possible
 
 - [wikt0r3k](https://www.github.com/realwikt0r3k) - Lead and only developer, soundtrack
 - [AnKaa](https://www.instagram.com/kocankaa) - UI, Cat Sprites, *overall graphic design*
-- [Vgrechisher](https://www.youtube.com/@vgrechi)) - SFX
+- [Vgrechisher](https://www.youtube.com/@vgrechi) - SFX
 
 
 ## What this project contains
