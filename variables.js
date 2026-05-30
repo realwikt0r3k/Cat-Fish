@@ -2,7 +2,7 @@
 const c = document.querySelector("#canvas");
 const ctx = c.getContext("2d");
 
-const _catCounter = 14;
+const _catCounter = 12;
 const _questCounter = 17;
 
 let animationFrame = null, timerInterval = null;
