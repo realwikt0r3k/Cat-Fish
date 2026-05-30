@@ -23,22 +23,14 @@ function changeLanguage(selectLanguage) {
     document.querySelector("#counter").textContent = UI[saveState.lang].ingame.your_points + " " + gameState.counter;
     document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + gameState.timer;
     document.querySelector("#coinsshop").innerHTML = UI[saveState.lang].shop.your_coins + " " + saveState.coins + ' <img src="images/UI/moneta.png" />';
-    switch (cat) {
+    switch (saveState.cat) {
         case 0:
             document.querySelector("#catdescription").innerHTML = `<p>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]}</p>`;
             break;
         case 11:
-            if (randomEvent < 4) {
-                document.querySelector("#catdescription").innerHTML = `<p>` +
-                    `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-                document.querySelector("#randomEvent").innerHTML = `<p>` +
-                    `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-            } else {
-                document.querySelector("#catdescription").innerHTML = `<p>` +
-                    `<span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-                document.querySelector("#randomEvent").innerHTML = `<p>` +
-                    `<span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-            }
+            document.querySelector("#catdescription").innerHTML = `<p><span style='color: #f0e440'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_info"]}</span>`;
+            document.querySelector("#randomEvent").innerHTML = `<p>` +
+                `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
             break;
         default:
             document.querySelector("#catdescription").innerHTML = `<p>` +
@@ -50,49 +42,48 @@ function changeLanguage(selectLanguage) {
 
     let personal_record = saveState.stats.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
     
-    document.querySelector("#endstats").innerHTML = `<p><p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`
-        `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>` +
-        `<span style="font-size: 75%">${UI[saveState.lang].gameover.good} ${gameState.collectibles.goodFish} <img src="images/fish/rybka.png" width="20" height="20" /></span>` +
-        `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.bad} ${gameState.collectibles.badFish} <img src="images/fish/zla_rybka.png" width="20" height="20" /></span>` +
-        `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.time} ${gameState.collectibles.timeFish} <img src="images/fish/timer_rybka.png" width="20" height="20" /></span>` +
-        `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.gold} ${gameState.collectibles.goldFish} <img src="images/fish/zlota_rybka.png" width="20" height="20" /></span>` +
-        `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.death} ${gameState.collectibles.deathFish} <img src="images/fish/smierc_rybka.png" width="20" height="20" /></span>` +
-        `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.all_ingame} ${gameState.collectibles.all}</span>` +
-        `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.coins} ${gameState.collectibles.coins} <img src="images/UI/moneta.png" width="20" height="20" /></span>`
+    let end_stats = `<p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`;
+    end_stats += `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>`
+
+    Object.keys(gameState.collectibles).forEach(stat => {
+        end_stats += `<br><span style="font-size: 75%">${UI[saveState.lang].gameover[stat]} ${gameState.collectibles[stat]}</span>`
+    })
+
+    document.querySelector("#endstats").innerHTML = end_stats;
 
     document.querySelector("#infomenu").innerHTML = `<div id="gameinfo">` +
         `<span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>${UI[saveState.lang].infos.all_fish}</u></span>` +
         `<div>` +
         `<img src="images/fish/rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.good}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.goodFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.75&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/zla_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.bad}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.badFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.25&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/timer_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.time}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.timeFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(1&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/zlota_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.gold}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.goldFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(2.5&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.ang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/smierc_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.death}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.deathFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(2&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
@@ -123,18 +114,13 @@ function changeLanguage(selectLanguage) {
         `<img src="images/UI/cancel.png" width="100px" height="100px">` +
         `</div>`
 
-    document.querySelector("#stats").innerHTML = `<p id="statstitle">${UI[saveState.lang].stats.stats}</p>` +
-        `<p> - ${UI[saveState.lang].stats.good} ${saveState.stats.collectibles.goodFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.bad} ${saveState.stats.collectibles.badFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.time} ${saveState.stats.collectibles.timeFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.gold} ${saveState.stats.collectibles.goldFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.death} ${saveState.stats.collectibles.deathFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.coins} ${saveState.stats.collectibles.coins}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.personal_best} ${saveState.stats.highestScore}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.all} ${saveState.stats.collectibles.all}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.games} ${saveState.stats.games}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.quests} ${saveState.stats.quests}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.bags} ${saveState.stats.bags}</p>`
+    let stats = `<p id="statstitle">${UI[saveState.lang].stats.stats}</p>`;
+    Object.keys(saveState.stats.collectibles).forEach(stat => {
+        stats += `<p> - ${UI[saveState.lang].stats[stat]} ${saveState.stats.collectibles[stat]}</p>`
+    })
+    Object.keys(saveState.stats.other).forEach(stat => {
+        stats += `<p class="underlined">${UI[saveState.lang].stats[stat]} ${saveState.stats.other[stat]}</p>`
+    })
 
     let allQuests = document.querySelectorAll(".quest");
 
@@ -260,10 +246,19 @@ function game() {
     gameState.cat.size = 50;
     gameState.cat.speed = 7;
     gameState.timeFishBonus = 1;
+    gameState.freezeFishTime = 0;
     gameState.multipliers.coins = 1;
     gameState.multipliers.points = 1;
     gameState.randomEvent = 0;
-    chances = [90, 85, 0.5, 80, 75]; //time, gold, coin, time after gold, coin after gold
+    gameState.chances = {
+        goodFish: 100,
+        badFish: 100,
+        timeFish: 15,
+        goldFish: 0.5,
+        deathFish: 1,
+        coin: 5,
+        freezeFish: 2.5
+    };
 
     switch (saveState.cat) {
         case 1:
@@ -271,22 +266,18 @@ function game() {
             gameState.multipliers.coins = 0.95;
             break;
         case 2:
-            chances[0] = 89.775;
-            chances[1] = 80.75;
-            chances[3] = 79.8;
-            chances[4] = 71.25;
+            gameState.chances.coin += 5;
+            gameState.chances.timeFish -= 5;
             break;
         case 3:
-            chances[0] = 85.5;
-            chances[1] = 84.7875;
-            chances[3] = 76;
-            chances[4] = 74.8125;
+            gameState.chances.coin -= 5;
+            gameState.chances.timeFish += 5;
             break;
         case 6:
             chances[2] = 1;
             break;
         case 7:
-            gameState.cat.size = 45;
+            gameState.cat.size = 37.5;
             gameState.collectibles_limit = 17;
             break;
         case 8:
@@ -327,16 +318,11 @@ function game() {
     }
 
     if (saveState.cat == 11) {
-        if (gameState.randomEvent < 4) {
-            document.querySelector("#randomEvent").innerHTML = `<p>` +
-                `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-        } else {
-            document.querySelector("#randomEvent").innerHTML = `<p>` +
-                `<span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-        }
+        document.querySelector("#randomEvent").innerHTML = `<p>` +
+            `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
     } else document.querySelector("#randomEvent").innerHTML = "";
 
-    document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + gameState.timer;
+    document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
 
     changeCat(saveState.cat);
 
@@ -344,14 +330,15 @@ function game() {
     function time() {
         elapsed = 0;
 
-        gameState.timer--;
-        document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + gameState.timer;
+        gameState.freezeFishTime != 0 ? gameState.freezeFishTime-- : gameState.timer--;
+
+        document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
         if (gameState.timer < 1) {
             clearInterval(timerInterval);
             cancelAnimationFrame(animationFrame);
 
             gameState.canPlay = false;
-            let addCoins = parseInt(
+            gameState.coins = parseInt(
                 ((gameState.collectibles.goodFish * 0.75 +
                     gameState.collectibles.badFish * 0.25 +
                     gameState.collectibles.timeFish * 1 +
@@ -359,64 +346,34 @@ function game() {
                     gameState.collectibles.deathFish * 2) + gameState.collectibles.coins) * gameState.multipliers.coins
             );
 
-            gameState.collectibles.all = gameState.collectibles.goodFish +
-                gameState.collectibles.badFish +
-                gameState.collectibles.timeFish +
-                gameState.collectibles.goldFish +
-                gameState.collectibles.deathFish;
-
-            saveState.coins += addCoins;
+            saveState.coins += gameState.coins;
             gameState.counter = parseInt(gameState.counter * gameState.multipliers.points);
 
-            saveState.stats.collectibles.goodFish += gameState.collectibles.goodFish;
-            saveState.stats.collectibles.badFish += gameState.collectibles.badFish;
-            saveState.stats.collectibles.timeFish += gameState.collectibles.timeFish;
-            saveState.stats.collectibles.goldFish += gameState.collectibles.goldFish;
-            saveState.stats.collectibles.deathFish += gameState.collectibles.deathFish;
+            Object.keys(saveState.stats.collectibles).forEach(stat => {
+                saveState.stats.collectibles[stat] += gameState.collectibles[stat];
+            })
 
-            saveState.stats.collectibles.coins += gameState.collectibles.coins;
-            saveState.stats.collectibles.all += gameState.collectibles.all;
-            saveState.stats.games++;
+            saveState.stats.other.games++;
 
             showPanel("#gameover");
 
-            const personal_record = saveState.stats.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
-            if (saveState.stats.highestScore < gameState.counter) saveState.stats.highestScore = gameState.counter;
-
-            document.querySelector("#endstats").innerHTML = `<p><p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>` +
-                `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.stats.collectibles.coins} <img src="images/UI/moneta.png"/></p>` +
-                `<span style="font-size: 75%">${UI[saveState.lang].gameover.good} ${gameState.collectibles.goodFish} <img src="images/fish/rybka.png" width="20" height="20" /></span>` +
-                `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.bad} ${gameState.collectibles.badFish} <img src="images/fish/zla_rybka.png" width="20" height="20" /></span>` +
-                `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.time} ${gameState.collectibles.timeFish} <img src="images/fish/timer_rybka.png" width="20" height="20" /></span>` +
-                `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.gold} ${gameState.collectibles.goldFish} <img src="images/fish/zlota_rybka.png" width="20" height="20" /></span>` +
-                `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.death} ${gameState.collectibles.deathFish} <img src="images/fish/smierc_rybka.png" width="20" height="20" /></span>` +
-                `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.all_ingame} ${gameState.collectibles.all}</span>` +
-                `<br><span style="font-size: 75%">${UI[saveState.lang].gameover.coins} ${gameState.collectibles.coins} <img src="images/UI/moneta.png" width="20" height="20" /></span>`
-
-            for (let i = 0; i <= 2; i++) {
+            saveState.quests.forEach((quest, i) => {
                 setTimeout(function () {
-                    switch (saveState.quests[i].id) {
-                        case 1:
-                            if (addCoins >= 50) completeQuest(1, i);
-                            break;
-                        case 2:
-                            if (gameState.collectibles.goldFish > 0) completeQuest(2, i);
-                            break;
-                        case 3:
-                            if (gameState.collectibles.deathFish > 0) completeQuest(3, i);
-                            break;
-                        case 4:
-                            if (gameState.collectibles.all >= 100) completeQuest(4, i);
-                            break;
-                        case 5:
-                            if (gameState.collectibles.goodFish >= 30) completeQuest(5, i);
-                            break;
-                        case 6:
-                            if (gameState.collectibles.all >= 10 && gameState.collectibles.badFish == 0) completeQuest(6, i);
-                            break;
-                    }
-                }, 100 * i)
-            }
+                    if(quests.conditions["quest" + quest.id]()) completeQuest(quest.id, i);
+                }, 200 * i)
+            });
+
+            const personal_record = saveState.stats.other.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.highestScore}</span>` : '';
+            if (saveState.stats.other.highestScore < gameState.counter) saveState.stats.other.highestScore = gameState.counter;
+
+            let end_stats = `<p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`;
+            end_stats += `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>`
+
+            Object.keys(gameState.collectibles).forEach(stat => {
+                end_stats += `<br><span style="font-size: 75%">${UI[saveState.lang].gameover[stat]} ${gameState.collectibles[stat]}</span>`
+            })
+
+            document.querySelector("#endstats").innerHTML = end_stats;
         }
     }
 
@@ -465,35 +422,35 @@ function infomenu() {
         `<span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>${UI[saveState.lang].infos.all_fish}</u></span>` +
         `<div>` +
         `<img src="images/fish/rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.good}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.goodFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.75&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/zla_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.bad}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.badFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(0.25&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/timer_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.time}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.timeFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(1&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/zlota_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.gold}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.goldFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(2.5&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/smierc_rybka.png" width="40px" height="40px" />` +
-        `<p>&nbsp;${UI[saveState.lang].infos.death}</p>` +
+        `<p>&nbsp;${UI[saveState.lang].infos.deathFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(2&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
         `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
@@ -576,18 +533,15 @@ function catmenu() {
             break;
     }
 
-    document.querySelector("#stats").innerHTML = `<p id="statstitle">${UI[saveState.lang].stats.stats}</p>` +
-        `<p> - ${UI[saveState.lang].stats.good} ${saveState.stats.collectibles.goodFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.bad} ${saveState.stats.collectibles.badFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.time} ${saveState.stats.collectibles.timeFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.gold} ${saveState.stats.collectibles.goldFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.death} ${saveState.stats.collectibles.deathFish}</p>` +
-        `<p> - ${UI[saveState.lang].stats.coins} ${saveState.stats.collectibles.coins}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.personal_best} ${saveState.stats.highestScore}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.all} ${saveState.stats.collectibles.all}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.games} ${saveState.stats.games}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.quests} ${saveState.stats.quests}</p>` +
-        `<p class="underlined">${UI[saveState.lang].stats.bags} ${saveState.stats.bags}</p>`
+    let stats = `<p id="statstitle">${UI[saveState.lang].stats.stats}</p>`;
+    Object.keys(saveState.stats.collectibles).forEach(stat => {
+        stats += `<p> - ${UI[saveState.lang].stats[stat]} ${saveState.stats.collectibles[stat]}</p>`
+    })
+    Object.keys(saveState.stats.other).forEach(stat => {
+        stats += `<p class="underlined">${UI[saveState.lang].stats[stat]} ${saveState.stats.other[stat]}</p>`
+    })
+    
+    document.querySelector("#stats").innerHTML = stats;
 
     showPanel("#catmenu");
 }
@@ -662,7 +616,7 @@ function caseEnd(getCat, moneyShow, isFirst) {
 function openCase() {
     if (saveState.coins >= 250) {
         saveState.coins -= 250;
-        saveState.stats.bags++;
+        let bags = saveState.stats.other.bags++;
 
         let blackScreen = document.querySelector(".blackscreen");
         let openBag = document.createElement("div");
@@ -769,6 +723,12 @@ function openCase() {
 
         changeCat(saveBox);
         setTimeout(caseEnd, 5000, saveBox, catToMoney, first);
+
+        saveState.quests.forEach((quest, i) => {
+            setTimeout(function () {
+                if(quests.conditions["quest" + quest.id]((quest.id == 7) ? bags : saveRarity)) completeQuest(quest.id, i);
+            }, 200 * i)
+        });
     } else {
         playSound(SFX.UI.buy_cat_fail);
     }

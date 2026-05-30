@@ -3,7 +3,7 @@ const c = document.querySelector("#canvas");
 const ctx = c.getContext("2d");
 
 const _catCounter = 12;
-const _questCounter = 6;
+const _questCounter = 17;
 
 let animationFrame = null, timerInterval = null;
 let vxr = 0, vxl = 0, vy = 0, elapsed;
@@ -11,7 +11,9 @@ let vxr = 0, vxl = 0, vy = 0, elapsed;
 const deltaTime = 1000/144;
 const catCost = [0, 150, 150, 150, 150, 300, 300, 300, 300, 500, 500, 0];
 
-chances = [90, 85, 0.5, 80, 75]; //time, gold, coin, time after gold, coin after gold
+function chance(number) {
+    return Math.random() * 100 < number;
+}
 
 let gameState = {
     canPlay: false,
@@ -31,14 +33,26 @@ let gameState = {
         timeFish: 0,
         goldFish: 0,
         deathFish: 0,
+        freezeFish: 0,
         coins: 0,
         all: 0
+    },
+    coins: 0,
+    chances: {
+        goodFish: 100,
+        badFish: 100,
+        timeFish: 15,
+        goldFish: 0.5,
+        deathFish: 1,
+        coin: 5,
+        freezeFish: 2.5
     },
     timeFishBonus: 2,
     multipliers: {
         coins: 1,
         points: 1
     },
+    freezeFishTime: 0,
     randomEvent: 0
 };
 
@@ -57,13 +71,16 @@ let saveState = {
             timeFish: 0,
             goldFish: 0,
             deathFish: 0,
+            freezeFish: 0,
             coins: 0,
             all: 0
         },
-        highestScore: 0,
-        games: 0,
-        quests: 0,
-        bags: 0
+        other: {
+            highestScore: 0,
+            games: 0,
+            quests: 0,
+            bags: 0
+        }
     },
     quests: [
         { id: Math.floor(Math.random() * _questCounter + 1), desc: null, reward: null, status: false },
@@ -97,12 +114,23 @@ class Point {
     constructor(point, type = point ? "Points" : "Bad") {
         this.point = point;
         this.type = type
-        console.log(`Fish type: ${type}`)
+        this.decayTimer = null;
         this.reposition();
     }
 
     reposition() {
         [this.rx, this.ry] = [Math.floor(Math.random() * 880) + 40, Math.floor(Math.random() * 530) + 40];
+    }
+
+    startDecayTimer() {
+        clearTimeout(this.decayTimer);
+        this.decayTimer = setTimeout(() => {
+            const fish = COLLECTIBLES.FISH[this.type];
+            if(fish.onDecay) {
+                this.type = fish.onDecay();
+                this.reposition();
+            }
+        }, 5000);
     }
 
     detectCollision() {
@@ -111,14 +139,19 @@ class Point {
 
             if (!colliding) return;
 
+            clearTimeout(this.decayTimer);
+
             const fish = COLLECTIBLES.FISH[this.type];
             playSound(fish.sound);
             fish.onCollect();
+            
+            gameState.collectibles.all++;
 
-            if (fish.onCollectDelay) fish.onCollectDelay.call(this, chances);
-
-            this.type = fish.rollNextType(chances);
+            this.type = fish.rollNextType();
             this.reposition();
+
+            if(COLLECTIBLES.FISH[this.type].onDecay) this.startDecayTimer();
+
         }
     }
 
@@ -138,9 +171,6 @@ background_music.volume = 0.3;
 background_music.loop = true;
 background_music.muted = !saveState.music;
 
-// sounds
-// 1-9 - UI sounds
-// 10-19 - game sounds
 const SFX = {
     UI: {
         click: {
@@ -165,20 +195,26 @@ const SFX = {
     INGAME: {
         pickup: {
             coin: {
-                source: "audio/pickup/coin.ogg",
-                volume: 0.75,
+                source: "audio/pickup/coin.wav",
+                volume: 0.6,
                 pitch_preserve: true,
                 playback_rate: 1
             },
             fish: {
-                source: "audio/pickup/fish.ogg",
-                volume: 0.75,
+                source: "audio/pickup/fish.wav",
+                volume: 0.6,
                 pitch_preserve: false,
                 playback_rate: (Math.random() / 2) + 1.25
             },
             fish_rare: {
                 source: "audio/pickup/fish_rare.ogg",
                 volume: 0.25,
+                pitch_preserve: true,
+                playback_rate: 1
+            },
+            freeze: {
+                source: "audio/pickup/freeze.wav",
+                volume: 0.7,
                 pitch_preserve: true,
                 playback_rate: 1
             },
@@ -205,11 +241,11 @@ const COLLECTIBLES = {
                 gameState.counter++;
                 gameState.collectibles.goodFish++;
             },
-            rollNextType(chances) {
-                const roll = Math.random() * 100;
-                if (roll + 1 > chances[0]) return "Time";
-                if (roll + 1 > chances[1]) return "Coin";
-                if (roll < chances[2]) return "Gold";
+            rollNextType() {
+                if ( chance(gameState.chances.timeFish) ) return "Time";
+                if ( chance(gameState.chances.coin) ) return "Coin";
+                if ( chance(gameState.chances.goldFish) ) return "Gold";
+                if ( chance(gameState.chances.freezeFish) ) return "Freeze";
                 return "Points";
             }
         },
@@ -219,32 +255,33 @@ const COLLECTIBLES = {
             onCollect() {
                 gameState.timer += gameState.timeFishBonus;
                 gameState.collectibles.timeFish++;
+                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
             },
-            rollNextType(chances) {
-                const roll = Math.random() * 100;
-                if (roll + 1 > chances[0]) return "Time";
-                if (roll + 1 > chances[1]) return "Coin";
-                if (roll < chances[2]) return "Gold";
+            rollNextType() {
+                if ( chance(gameState.chances.timeFish) ) return "Time";
+                if ( chance(gameState.chances.coin) ) return "Coin";
+                if ( chance(gameState.chances.goldFish) ) return "Gold";
+                if ( chance(gameState.chances.freezeFish) ) return "Freeze";
                 return "Points";
             }
         },
         Gold: {
             image: () => document.querySelector("#goldfish"),
-            sound: SFX.INGAME.pickup.fish,
+            sound: SFX.INGAME.pickup.coin,
             onCollect() {
                 gameState.timer += 5;
                 gameState.counter += 10;
                 gameState.collectibles.goldFish++;
+                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
             },
-            rollNextType(chances) {
+            rollNextType() {
                 return "Points";
             },
-            onCollectDelay(chances) {
-                setTimeout(() => {
-                    if (Math.floor(Math.random() * 100) > chances[3]) this.type = "Time";
-                    else if (Math.floor(Math.random() * 100) > chances[4]) this.type = "Coin";
-                    else this.type = "Points";
-                }, 5000)
+            onDecay() {
+                if (chance(gameState.chances.timeFish)) return "Time";
+                if (chance(gameState.chances.coin)) return "Coin";
+                if (chance(gameState.chances.freezeFish)) return "Freeze";
+                return "Points";
             }
         },
         Bad: {
@@ -254,19 +291,18 @@ const COLLECTIBLES = {
             onCollect() {
                 switch (cat) {
                     case 4:
-                        if (Math.floor(Math.random() * 100) + 1 >= 11) gameState.counter -= 3;
-                        else gameState.counter++;
+                        (chance(10)) ? gameState.counter -= 3 : gameState.counter++;
                         break;
                     case 5:
-                        gameState.counter -= (Math.floor(Math.random() * 100) + 1 <= 5) ? 5 : 3;
+                        gameState.counter -= chance(5) ? 5 : 3;
                         break;
                     default:
                         gameState.counter -= 3; 
                 }
                 gameState.collectibles.badFish++;
             },
-            rollNextType(chances) {
-                return Math.floor(Math.random() * 100) === 47 ? "Death" : "Bad";
+            rollNextType() {
+                return chance(gameState.chances.deathFish) ? "Death" : "Bad";
             }
         },
         Death: {
@@ -277,14 +313,28 @@ const COLLECTIBLES = {
                 gameState.counter -= 10;
                 gameState.timer -= 5;
                 gameState.collectibles.deathFish++;
+                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
             },
-            rollNextType(chances) {
+            rollNextType() {
                 return "Bad";
             },
-            onCollectDelay(fish) {
-                setTimeout(() => {
-                    fish.type = "Bad";
-                }, 5000)
+            onDecay() {
+                return "Bad";
+            }
+        },
+        Freeze: {
+            sound: SFX.INGAME.pickup.freeze,
+            image: () => document.querySelector("#freezefish"),
+            onCollect() {
+                gameState.collectibles.freezeFish++;
+                gameState.freezeFishTime = 3;
+                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
+            },
+            rollNextType() {
+                if ( chance(gameState.chances.timeFish) ) return "Time";
+                if ( chance(gameState.chances.coin) ) return "Coin";
+                if ( chance(gameState.chances.goldFish) ) return "Gold";
+                return "Points";
             }
         },
         Coin: {
@@ -294,10 +344,10 @@ const COLLECTIBLES = {
                 gameState.collectibles.coins++;
             },
             rollNextType() {
-                const roll = Math.random() * 100;
-                if (roll + 1 > chances[0]) return "Time";
-                if (roll + 1 > chances[1]) return "Coin";
-                if (roll < chances[2]) return "Gold";
+                if ( chance(gameState.chances.timeFish) ) return "Time";
+                if ( chance(gameState.chances.coin) ) return "Coin";
+                if ( chance(gameState.chances.goldFish) ) return "Gold";
+                if ( chance(gameState.chances.freezeFish) ) return "Freeze";
                 return "Points";
             }
         }
@@ -332,25 +382,27 @@ const UI = {
         },
         stats: {
             stats: "Your stats:",
-            good: "Good Fish:",
-            bad: "Bad Fish:",
-            time: "Time Fish:",
-            gold: "Goldfish:",
-            death: "Deathfish:",
+            goodFish: "Good Fish:",
+            badFish: "Bad Fish:",
+            timeFish: "Time Fish:",
+            goldFish: "Gold Fish:",
+            deathFish: "Death Fish:",
+            freezeFish: "Freeze Fish:",
             coins: "Coins:",
-            all: "All:",
+            all: "All Fish:",
             games: "Played games:",
             quests: "Completed quests:",
             bags: "Opened bags:",
-            personal_best: "Personal best:"
+            highestScore: "Personal best:"
         },
         infos: {
-            all_fish: "All fish:",
-            good: "Good Fish - gives 1* point",
-            bad: "Bad Fish - takes away 3* points",
-            time: "Time Fish - adds 2* seconds",
-            gold: "Goldfish - gives 10 points + 5 seconds",
-            death: "Deathfish - takes away 10 points + 5 seconds",
+            all: "All fish:",
+            goodFish: "Good Fish - gives 1* point",
+            badFish: "Bad Fish - takes away 3* points",
+            timeFish: "Time Fish - adds 2* seconds",
+            goldFish: "Gold Fish - gives 10 points + 5 seconds",
+            deathFish: "Death Fish - takes away 10 points + 5 seconds",
+            freezeFish: "Freeze Fish - stops the timer for 3 seconds",
             per_fish: "fish",
             disclaimer: "*Can vary between different cats."
         },
@@ -366,15 +418,16 @@ const UI = {
             your_points: "Your points: ",
             your_coins: "Your coins:",
             picked_up: "During this run, you collected:",
-            good: "Good Fish:",
-            bad: "Bad Fish:",
-            time: "Time Fish:",
-            gold: "Goldfish:",
-            death: "Deathfish:",
-            all_ingame: "Total fish:",
+            goodFish: "Good Fish:",
+            badFish: "Bad Fish:",
+            timeFish: "Time Fish:",
+            goldFish: "Gold Fish:",
+            deathFish: "Death Fish:",
+            freezeFish: "Freeze Fish:",
+            all: "Total Fish:",
             coins: "Collected coins: ",
             items: "items collected, which converts into:",
-            personal_best: "New personal best!"
+            highestScore: "New personal best!"
         },
         cats: {
             cat_description: {
@@ -436,120 +489,6 @@ const UI = {
             coins: "coins."
         }
     },
-    pl: {
-        shop: {
-            your_coins: "Twoje monety:"
-        },
-        ingame: {
-            your_points: "Twoje punkty:",
-            your_time: "Pozostały czas:"
-        },
-        stats: {
-            stats: "Twoje statystyki:",
-            good: "Dobre Rybki:",
-            bad: "Złe Rybki:",
-            time: "Rybki Czasu:",
-            gold: "Złote rybki:",
-            death: "Rybki Śmierci:",
-            coins: "Monety:",
-            all: "Wszystko:",
-            games: "Zagrane gry:",
-            quests: "Ukończone zadania:",
-            bags: "Otwarte worki:",
-            personal_best: "Personal best:"
-        },
-        infos: {
-            all_fish: "Wszystkie ryby:",
-            good: "Dobra Rybka - daje 1* punkt",
-            bad: "Zła Rybka - zabiera 3* punkty",
-            time: "Rybka Czasu - daje 2* sekundy",
-            gold: "Złota rybka - daje 10 punktów + 5 sekund",
-            death: "Rybka Śmierci - zabiera 10 punktów + 5 sekund",
-            per_fish: "ryba",
-            disclaimer: "*Może się różnić pomiędzy kotami."
-        },
-        creators_contributors: {
-            title: "Twórcy + Kontrybutorzy",
-            wikt0r3k: "wikt0r3k - Programista + SFX + Grafik",
-            ankaa: "AnKaa - Grafik",
-            suzana: "Suzana - Koty 7-10",
-            madzik_20: "Madzik_20 - Koncept kota 11",
-            JasiuKoxYT: "JasiuKoxYT - Design worka z kotem",
-        },
-        gameover: {
-            your_points: "Twoje punkty: ",
-            your_coins: "Twoje monety:",
-            picked_up: "W trakcie tej gry, zebrałeś:",
-            good: "Dobre Rybki:",
-            bad: "Złe Rybki:",
-            time: "Rybki Czasu:",
-            gold: "Złote Rybki:",
-            death: "Rybki Śmierci:",
-            all_ingame: "Rybek łącznie:",
-            coins: "Zebrane monety: ",
-            items: "zebranych rzeczy, co w przeliczeniu wynosi:",
-            personal_best: "Nowy rekord!"
-        },
-        cats: {
-            cat_description: {
-                cat_0: "Twój domyślny kot.",
-                cat_1: {
-                    buff: "+ 10% szybszy kot",
-                    debuff: "- 5% mniej monet"
-                },
-                cat_2: {
-                    buff: "+ 5% więcej szans na Monetę",
-                    debuff: "- 5% mniej szans na Rybkę Czasu"
-                },
-                cat_3: {
-                    buff: "+ 5% więcej szans na Rybkę Czasu",
-                    debuff: "- 5% mniej szans na Monetę"
-                },
-                cat_4: {
-                    buff: "+ 10% szansy na to, że Zła Rybka da 3 punkty zamiast ich zabrać",
-                    debuff: "- 5% szans na to, że Dobra Rybka nie da punktów"
-                },
-                cat_5: {
-                    buff: "+ 10% szans na PODWÓJNE oraz 5% na POTRÓJNE punkty z Dobrej Rybki",
-                    debuff: "- 5% szansy na to, że Zła Rybka zabierze 10 punktów"
-                },
-                cat_6: {
-                    buff: "+ 100% więcej szans na Złotą Rybkę",
-                    debuff: "- 20% szans na to, że Dobra Rybka zabierze punkt"
-                },
-                cat_7: {
-                    buff: "+ 5 dodatkowych rybek",
-                    debuff: "- 25% mniejszy kot"
-                },
-                cat_8: {
-                    buff: "+ 10% większy kot",
-                    debuff: "- 5% wolniejszy kot"
-                },
-                cat_9: {
-                    buff: "+ 5 dodatkowych sekund na start",
-                    debuff: "- 1 Dobra Rybka staje się Złą Rybką"
-                },
-                cat_10: {
-                    buff: "+ Time Fish daje ci o 1 sekundę więcej",
-                    debuff: "- Zaczynasz posiadając tylko 10 sekund"
-                },
-                cat_11: {
-                    random_event_info: "Ten kot ma wybierany losowy event na początku rundy",
-                    random_event_1: "RANDOM EVENT: + 10% szybszy kot",
-                    random_event_2: "RANDOM EVENT: + 10% więcej monet",
-                    random_event_3: "RANDOM EVENT: + 5% więcej punktów",
-                    random_event_4: "RANDOM EVENT: - Zaczynasz posiadając tylko 10 sekund",
-                    random_event_5: "RANDOM EVENT: - 5% mniej monet",
-                    random_event_6: "RANDOM EVENT: - 25% mniejszy kot"
-                }
-            }
-        },
-        bag: {
-            already_has: "Posiadasz już tego kota.",
-            instead: "W zamian, otrzymasz za niego",
-            coins: "monet."
-        }
-    }
 }
 
 const quests = {
@@ -558,29 +497,24 @@ const quests = {
             your_quests: "Your quests",
             reward: "Reward",
             quest1: "Earn 50 coins in a single game",
-            quest2: "Collect a Goldfish",
-            quest3: "Collect a Deathfish",
+            quest2: "Collect a Gold Fish",
+            quest3: "Collect a Death Fish",
             quest4: "Collect a total of 100 fish in one game",
             quest5: "Collect a total of 30 Good Fish in one game",
             quest6: "Finish a game with at least 10 fish and no bad one",
             quest7: "Open a cat bag",
             quest8: "Roll a RARE cat",
             quest9: "Roll an EPIC cat",
-            quest10: "Roll a MYTHIC cat"
-        },
-        pl: {
-            your_quests: "Twoje zadania",
-            reward: "Nagroda",
-            quest1: "Zarób 50 monet w trakcie jeden gry",
-            quest2: "Zbierz Złotą Rybkę",
-            quest3: "Zbierz Rybkę Śmierci",
-            quest4: "Zbierz łącznie 100 rybek w trakcie jednej gry",
-            quest5: "Zbierz łącznie 30 Dobrych Rybek w trakcie jednej gry",
-            quest6: "Skończ grę z minimum 10 dobrymi rybkami bez złych",
-            quest7: "Otwórz worek z kotem",
-            quest8: "Wylosuj RZADKIEGO kota",
-            quest9: "Wylosuj EPICKIEGO kota",
-            quest10: "Wylosuj MITYCZNEGO kota"
+            quest10: "Roll a MYTHIC cat",
+            quest11: "Get 50 points from a single game",
+            quest12: "Get 100 points from a single game",
+            quest13: "Get 150 points from a single game",
+            quest14: "Get 200 points from a single game",
+            quest15: "Beat your personal record",
+            quest16: "Collect a total of 500 fish in one game",
+            quest17: "Earn 100 coins in a single game",
+            quest18: "Collect a total of 50 Time Fish in one game",
+            quest19: "Collect at least 5 fish without getting any Good Fish",
         }
     },
     rewards: {
@@ -593,7 +527,37 @@ const quests = {
         quest7: 125,
         quest8: 250,
         quest9: 500,
-        quest10: 1000
+        quest10: 1000,
+        quest11: 50,
+        quest12: 150,
+        quest13: 250,
+        quest14: 500,
+        quest15: 100,
+        quest16: 1000,
+        quest17: 150,
+        quest18: 750,
+        quest19: 250
+    },
+    conditions: {
+        quest1: () => (gameState.coins >= 50),
+        quest2: () => (gameState.collectibles.goldFish > 0),
+        quest3: () => (gameState.collectibles.deathFish > 0),
+        quest4: () => (gameState.collectibles.all >= 100),
+        quest5: () => (gameState.collectibles.goodFish >= 30),
+        quest6: () => (gameState.collectibles.goodFish >= 10 && (gameState.collectibles.badFish + gameState.collectibles.deathFish) < 1),
+        quest7: (bags) => (bags < saveState.stats.bags),
+        quest8: (rarity) => (rarity == "rare"),
+        quest9: (rarity) => (rarity == "epic"),
+        quest10: (rarity) => (rarity == "mythic"),
+        quest11: () => (gameState.counter >= 50),
+        quest12: () => (gameState.counter >= 100),
+        quest13: () => (gameState.counter >= 150),
+        quest14: () => (gameState.counter >= 200),
+        quest15: () => (saveState.stats.highestScore < gameState.counter),
+        quest16: () => (gameState.collectibles.all >= 500),
+        quest17: () => (gameState.coins >= 100),
+        quest18: () => (gameState.collectibles.timeFish >= 50),
+        quest19: () => (gameState.collectibles.all >= 5 && gameState.collectibles.goodFish < 1),
     }
 }
 
@@ -601,7 +565,7 @@ function completeQuest(questID, slotIndex) {
     playSound(SFX.UI.buy_cat);
 
     saveState.coin += quests.rewards[`quest${questID}`];
-    saveState.stats.quests++;
+    saveState.stats.other.quests++;
 
     let screen = document.querySelector("body");
     let child = document.createElement("span");
