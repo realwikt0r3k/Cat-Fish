@@ -553,7 +553,7 @@ const quests = {
         quest12: () => (gameState.counter >= 100),
         quest13: () => (gameState.counter >= 150),
         quest14: () => (gameState.counter >= 200),
-        quest15: () => (saveState.stats.highestScore < gameState.counter),
+        quest15: () => (saveState.stats.other.highestScore < gameState.counter),
         quest16: () => (gameState.collectibles.all >= 500),
         quest17: () => (gameState.coins >= 100),
         quest18: () => (gameState.collectibles.timeFish >= 50),
