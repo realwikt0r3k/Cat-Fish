@@ -245,7 +245,7 @@ function game() {
     gameState.timer = 15;
     gameState.cat.size = 50;
     gameState.cat.speed = 7;
-    gameState.timeFishBonus = 1;
+    gameState.timeFishBonus = 2;
     gameState.freezeFishTime = 0;
     gameState.multipliers.coins = 1;
     gameState.multipliers.points = 1;
