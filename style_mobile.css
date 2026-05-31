@@ -7,7 +7,6 @@ body {
     background-image: url("images/background_tile.png");
     background-repeat: repeat;
     background-color: rgba(0, 0, 0, 0.5);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 @media only screen and (max-width: 767px) {

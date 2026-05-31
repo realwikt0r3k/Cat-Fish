@@ -6,7 +6,8 @@ body {
     background-image: url("images/background_tile.png");
     background-repeat: repeat;
     background-color: rgba(0, 0, 0, 0.5);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* font-family: "Jersey 10", Tahoma, Geneva, Verdana, sans-serif; */
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 canvas {

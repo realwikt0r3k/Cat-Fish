@@ -1,5 +1,6 @@
 window.onload = function () {
     loadGame();
+    SKIN_MANAGER.load();
     mainmenu();
 
     setTimeout(function () {
@@ -23,24 +24,10 @@ function changeLanguage(selectLanguage) {
     document.querySelector("#counter").textContent = UI[saveState.lang].ingame.your_points + " " + gameState.counter;
     document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + gameState.timer;
     document.querySelector("#coinsshop").innerHTML = UI[saveState.lang].shop.your_coins + " " + saveState.coins + ' <img src="images/UI/moneta.png" />';
-    switch (saveState.cat) {
-        case 0:
-            document.querySelector("#catdescription").innerHTML = `<p>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]}</p>`;
-            break;
-        case 11:
-            document.querySelector("#catdescription").innerHTML = `<p><span style='color: #f0e440'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_info"]}</span>`;
-            document.querySelector("#randomEvent").innerHTML = `<p>` +
-                `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
-            break;
-        default:
-            document.querySelector("#catdescription").innerHTML = `<p>` +
-                `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat].buff}</span>` +
-                `<br><span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat].debuff}</span>` +
-                `</p>`
-            break;
-    }
+    
+    document.querySelector("#catdescription").innerHTML = SKIN_MANAGER.selected.getDescription;
 
-    let personal_record = saveState.stats.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
+    let personal_record = saveState.stats.other.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
     
     let end_stats = `<p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`;
     end_stats += `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>`
@@ -79,7 +66,7 @@ function changeLanguage(selectLanguage) {
         `<p>&nbsp;${UI[saveState.lang].infos.goldFish}</p>` +
         `<p style="font-size: 75%; opacity: 0.75;">&nbsp;(2.5&nbsp;</p>` +
         `<img style="opacity: 0.75;" src="images/UI/moneta.png" width="20px" height="20px" />` +
-        `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.ang].infos.per_fish})</p>` +
+        `<p style="font-size: 75%; opacity: 0.75;">/${UI[saveState.lang].infos.per_fish})</p>` +
         `</div>` +
         `<div>` +
         `<img src="images/fish/smierc_rybka.png" width="40px" height="40px" />` +
@@ -124,91 +111,14 @@ function changeLanguage(selectLanguage) {
 
     let allQuests = document.querySelectorAll(".quest");
 
-    for (let i = 1; i <= 3; i++) {
-        saveState.quests[i].desc = quests.descriptions[saveState.lang]["quest" + saveState.quests[i].id];
-        saveState.quests[i].reward = quests.rewards["quest" + saveState.quests[i].id];
-    }
+    saveState.quests.forEach(quest => {
+        quest.desc = quests.descriptions[saveState.lang][`quest${quest.id}`];
+        quest.reward = quests.rewards[`quest${quest.id}`];
+    })
 
     allQuests.forEach((element, i) => {
         element.innerHTML = saveState.quests[i].desc + "</br><span style='font-size: 65%; color: azure;'>Reward: " + saveState.quests[i].reward + "</span>";
     })
-}
-
-function changeCat(event) {
-    selectCat = event.target;
-
-    if (event instanceof Event) {
-        const target = event.currentTarget;
-        selectCat = Array.from(document.querySelectorAll(".skin")).indexOf(target);
-    } else {
-        selectCat = event;
-    }
-
-    console.log(selectCat);
-    if (saveState.unlockedCats[selectCat]) {
-        playSound(SFX.UI.click);
-        saveState.cat = selectCat;
-        document.getElementById("cat").src = "images/cats/cat" + (saveState.cat + 1) + ".png";
-        let skins = document.querySelectorAll(".skin");
-
-        document.querySelector("#cats").innerHTML = "";
-
-        for (let skin = 0; skin < skins.length; skin++) {
-
-            let image = "images/cats/cat" + (skin + 1) + ".png";
-            let child = document.createElement('div');
-
-            if (!saveState.unlockedCats[skin]) {
-                image = document.createElement('img');
-                image.src = "images/cats/cat" + (skin + 1) + ".png";
-                image.style.filter = "brightness(25%)";
-                image.width = "100";
-                image.height = "100";
-                child.appendChild(image);
-                image = document.createElement('img');
-                image.src = "images/cats/locks/lock" + catCost[skin] + ".png";
-                image.className = "locked";
-                child.appendChild(image);
-            } else {
-                image = document.createElement('img');
-                image.src = "images/cats/cat" + (skin + 1) + ".png";
-                image.width = "100";
-                image.height = "100";
-                child.appendChild(image);
-                if (saveState.cat == skin) child.style.filter = "brightness(100%)";
-                else child.style.filter = "brightness(50%)";
-            }
-
-            child.className = "skin";
-            child.addEventListener("click", changeCat);
-            document.querySelector("#cats").appendChild(child);
-        }
-    } else {
-        if (saveState.coins >= catCost[selectCat] && catCost[selectCat] != 0) {
-            playSound(SFX.UI.buy_cat);
-            saveState.unlockedCats[selectCat] = true;
-            saveState.coins -= catCost[selectCat];
-            changeCat(selectCat);
-            document.querySelector("#coinsshop").innerHTML = UI[saveState.lang].shop.your_coins + " " + saveState.coins + ' <img src="images/UI/moneta.png" />';
-        } else {
-            playSound(SFX.UI.buy_cat_fail);
-        }
-    }
-
-    switch (saveState.cat) {
-        case 0:
-            document.querySelector("#catdescription").innerHTML = `<p>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]}</p>`;
-            break;
-        case 11:
-            document.querySelector("#catdescription").innerHTML = `<p><span style='color: #f0e440'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_info"]}</span>`;
-            break;
-        default:
-            document.querySelector("#catdescription").innerHTML = `<p>` +
-                `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat].buff}</span>` +
-                `<br><span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat].debuff}</span>` +
-                `</p>`
-            break;
-    }
 }
 
 function startGame(startTime) {
@@ -221,6 +131,15 @@ function startGame(startTime) {
     } else {
         setTimeout(startGame, 1000, startTime);
     }
+}
+
+function updateTimerDisplay() {
+    if(gameState.timer > 25) gameState.timer = 25;
+
+    document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " "
+        + (gameState.freezeFishTime != 0 ? "❄ " : "")
+        + gameState.timer
+        + (gameState.freezeFishTime != 0 ? " ❄" : "");
 }
 
 function game() {
@@ -253,86 +172,31 @@ function game() {
     gameState.chances = {
         goodFish: 100,
         badFish: 100,
-        timeFish: 15,
+        timeFish: 10,
         goldFish: 0.5,
         deathFish: 1,
         coin: 5,
-        freezeFish: 2.5
+        freezeFish: 2
     };
 
-    switch (saveState.cat) {
-        case 1:
-            gameState.speed = 7.7;
-            gameState.multipliers.coins = 0.95;
-            break;
-        case 2:
-            gameState.chances.coin += 5;
-            gameState.chances.timeFish -= 5;
-            break;
-        case 3:
-            gameState.chances.coin -= 5;
-            gameState.chances.timeFish += 5;
-            break;
-        case 6:
-            gameState.chances.goldFish = 1;
-            break;
-        case 7:
-            gameState.cat.size = 37.5;
-            gameState.collectibles_limit = 17;
-            break;
-        case 8:
-            gameState.cat.size = 55;
-            gameState.cat.speed = 6.65;
-            break;
-        case 9:
-            gameState.timer = 20;
-            gameState.collectibles_bad_limit = 6;
-            break;
-        case 10:
-            gameState.timeFishBonus = 3;
-            gameState.timer = 6;
-            break;
-        case 11:
-            gameState.randomEvent = Math.floor(Math.random() * 6 + 1);
-    }
-
-    switch (gameState.randomEvent) {
-        case 1:
-            gameState.cat.speed = 7.7;
-            break;
-        case 2:
-            gameState.multipliers.coins = 0.95;
-            break;
-        case 3:
-            gameState.multipliers.points = 0.95;
-            break;
-        case 4:
-            gameState.timer = 12;
-            break;
-        case 5:
-            gameState.multipliers.coins = 0.95;
-            break;
-        case 6:
-            gameState.cat.size = 37.5;
-            break;
-    }
+    SKIN_MANAGER.applySelected();
 
     if (saveState.cat == 11) {
         document.querySelector("#randomEvent").innerHTML = `<p>` +
-            `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_" + gameState.randomEvent]}</span>`
+            `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${SKIN_MANAGER.selected.getDescription}</span>`
     } else document.querySelector("#randomEvent").innerHTML = "";
 
     document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
-
-    changeCat(saveState.cat);
+    
+    document.querySelector("#cat").src = SKIN_MANAGER.selected.imageSrc;
 
     gameState.canPlay = true;
     function time() {
         elapsed = 0;
 
         gameState.freezeFishTime != 0 ? gameState.freezeFishTime-- : gameState.timer--;
+        updateTimerDisplay();
 
-        document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
         if (gameState.timer < 1) {
             clearInterval(timerInterval);
             cancelAnimationFrame(animationFrame);
@@ -479,53 +343,8 @@ function infomenu() {
 function catmenu() {
     playSound(SFX.UI.click);
     document.querySelector("#coinsshop").innerHTML = UI[saveState.lang].shop.your_coins + " " + saveState.coins + ' <img src="images/UI/moneta.png" />';
-    document.querySelector("#cats").innerHTML = "";
-
-    let parent = document.querySelector("#cats");
-    let image;
-
-    for (let i = 0; i < _catCounter; i++) {
-        let child = document.createElement('div');
-        if (!saveState.unlockedCats[i]) {
-            image = document.createElement('img');
-            image.src = "images/cats/cat" + (i + 1) + ".png";
-            image.style.filter = "brightness(25%)";
-            image.width = "100";
-            image.height = "100";
-            child.appendChild(image);
-            image = document.createElement('img');
-            image.src = "images/cats/locks/lock" + catCost[i] + ".png";
-            image.className = "locked";
-            child.appendChild(image);
-        } else {
-            image = document.createElement('img');
-            image.src = "images/cats/cat" + (i + 1) + ".png";
-            image.width = "100";
-            image.height = "100";
-            child.appendChild(image);
-            if (saveState.cat == i) child.style.filter = "brightness(100%)";
-            else child.style.filter = "brightness(50%)";
-        }
-
-        child.className = "skin";
-        child.addEventListener("click", changeCat);
-        parent.appendChild(child);
-    }
-
-    switch (saveState.cat) {
-        case 0:
-            document.querySelector("#catdescription").innerHTML = `<p>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]}</p>`;
-            break;
-        case 11:
-            document.querySelector("#catdescription").innerHTML = `<p><span style='color: #f0e440'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat]["random_event_info"]}</span>`;
-            break;
-        default:
-            document.querySelector("#catdescription").innerHTML = `<p>` +
-                `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat].buff}</span>` +
-                `<br><span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + saveState.cat].debuff}</span>` +
-                `</p>`
-            break;
-    }
+    
+    SKIN_MANAGER.renderAll();
 
     let stats = `<p id="statstitle">${UI[saveState.lang].stats.stats}</p>`;
     Object.keys(saveState.stats.collectibles).forEach(stat => {
@@ -574,26 +393,7 @@ function caseEnd(getCat, moneyShow, isFirst) {
         endCatDesc.innerHTML = UI[saveState.lang].bag.already_has + " <br>" + UI[saveState.lang].bag.instead + " " + moneyShow + " " + UI[saveState.lang].bag.coins;
     } else {
         playSound(SFX.UI.buy_cat);
-        switch (cat) {
-            case 0:
-                endCatDesc.innerHTML = `<p>${UI[saveState.lang].cats.cat_description["cat_" + getCat]}</p>`;
-                break;
-            case 11:
-                if (randomEvent < 4) {
-                    endCatDesc.innerHTML = `<p>` +
-                        `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + getCat]["random_event_" + gameState.randomEvent]}</span>`
-                } else {
-                    endCatDesc.innerHTML = `<p>` +
-                        `<span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + getCat]["random_event_" + gameState.randomEvent]}</span>`
-                }
-                break;
-            default:
-                endCatDesc.innerHTML = `<p>` +
-                    `<span style='color: #87e894'>${UI[saveState.lang].cats.cat_description["cat_" + getCat].buff}</span>` +
-                    `<br><span style='color: #ff7486'>${UI[saveState.lang].cats.cat_description["cat_" + getCat].debuff}</span>` +
-                    `</p>`
-                break;
-        }
+        endCatDesc.innerHTML = SKIN_MANAGER.skins[getCat].getDescription
     }
     endCat.appendChild(endCatImg);
 
@@ -608,124 +408,52 @@ function caseEnd(getCat, moneyShow, isFirst) {
 }
 
 function openCase() {
-    if (saveState.coins >= 250) {
-        saveState.coins -= 250;
-        let bags = saveState.stats.other.bags++;
+    if(saveState.coins < 250) { playSound(SFX.UI.buy_cat_fail); return; }
 
-        let blackScreen = document.querySelector(".blackscreen");
-        let openBag = document.createElement("div");
-        let openLine = document.createElement("div");
-        let openWin = document.createElement("div");
-        let openShow = document.createElement("div");
-        let bagAnim = document.createElement("img");
+    saveState.coins -= 250;
+    saveState.stats.other.bags++;
 
-        openBag.className = "openbag";
-        openLine.className = "openingline";
-        openWin.className = "openingwindow";
-        openShow.className = "openingshow";
+    const result = SKIN_MANAGER.rollCaseResult();
+    const skin = SKIN_MANAGER.skins[result.cat];
+    const isFirst = skin.unlockFromCase();
+    if(!isFirst) saveState.coins += SKIN_MANAGER.rarityValues[result.rarity];
 
-        bagAnim.className = "baganimation";
+    const blackScreen = document.querySelector(".blackscreen");
+    const openBag = document.createElement("div");
+    const openLine = document.createElement("div");
+    const openWin = document.createElement("div");
+    const openShow = document.createElement("div");
+    const bagAnim = document.createElement("img");
 
-        bagAnim.src = "images/cats/bag/cat_bag.png";
+    openBag.className = "openbag";
+    openLine.className = "openingline";
+    openWin.className = "openingwindow";
+    openShow.className = "openingshow";
+    bagAnim.className = "baganimation";
+    bagAnim.src = "images/cats/bag/cat_bag.png";
 
-        let saveBox;
-        let saveRarity;
-        let catToMoney;
-
-        for (let i = 0; i < 30; i++) {
-            box = document.createElement('div');
-            randomBox = Math.floor(Math.random() * 100) + 1;
-
-            image = document.createElement('img');
-            image.width = "90";
-            image.height = "90";
-
-            let openCat;
-            let saveOpenCat;
-            let saveOpenRarity;
-
-            if (randomBox <= 2) {
-                saveOpenCat = 11;
-                box.classList = ["box mythic"];
-
-                saveOpenRarity = "mythic";
-
-                image.src = "images/cats/cat" + (saveOpenCat + 1) + ".png";
-            } else if (randomBox <= 7) {
-                openCat = Math.floor(Math.random() * 3) + 1;
-                if (openCat == 1) saveOpenCat = 5;
-                else if (openCat == 2) saveOpenCat = 7;
-                else saveOpenCat = 9;
-
-                saveOpenRarity = "epic";
-
-                box.classList = ["box epic"];
-                image.src = "images/cats/cat" + (saveOpenCat + 1) + ".png";
-            } else if (randomBox <= 27) {
-                openCat = Math.floor(Math.random() * 4) + 1;
-                if (openCat == 1) saveOpenCat = 4;
-                else if (openCat == 2) saveOpenCat = 6;
-                else if (openCat == 3) saveOpenCat = 8;
-                else saveOpenCat = 10;
-
-                saveOpenRarity = "rare";
-
-                box.classList = ["box rare"];
-                image.src = "images/cats/cat" + (saveOpenCat + 1) + ".png";
-            } else {
-                openCat = Math.floor(Math.random() * 3) + 1;
-                if (openCat == 1) saveOpenCat = 1;
-                else if (openCat == 2) saveOpenCat = 2;
-                else saveOpenCat = 3;
-
-                saveOpenRarity = "common";
-
-                box.classList = ["box common"];
-                image.src = "images/cats/cat" + (saveOpenCat + 1) + ".png";
-            }
-
-            if (i == 27) {
-                saveBox = saveOpenCat;
-                saveRarity = saveOpenRarity;
-
-                if (saveRarity == "mythic") catToMoney = 500;
-                else if (saveRarity == "epic") catToMoney = 250;
-                else if (saveRarity == "rare") catToMoney = 150;
-                else catToMoney = 75;
-
-                if (saveState.unlockedCats[saveBox]) {
-                    saveState.coins += catToMoney;
-                    first = false;
-                } else {
-                    saveState.unlockedCats[saveBox] = true;
-                    first = true;
-                }
-            }
-            box.appendChild(image);
-            openLine.appendChild(box);
-        }
-
-        catmenu();
-
-        openWin.appendChild(openLine);
-        openBag.appendChild(openWin);
-        openBag.appendChild(openShow);
-        openBag.appendChild(bagAnim);
-
-        blackScreen.innerHTML = "";
-        blackScreen.appendChild(openBag);
-
-        changeCat(saveBox);
-        setTimeout(caseEnd, 5000, saveBox, catToMoney, first);
-
-        saveState.quests.forEach((quest, i) => {
-            setTimeout(function () {
-                if(quests.conditions["quest" + quest.id]((quest.id == 7) ? bags : saveRarity)) completeQuest(quest.id, i);
-            }, 200 * i)
-        });
-    } else {
-        playSound(SFX.UI.buy_cat_fail);
+    for(let i = 0; i < 30; i++) {
+        const roll = i === 27 ? result : SKIN_MANAGER.rollCaseResult();
+        openLine.appendChild(SKIN_MANAGER.buildReelBox(roll.cat, roll.rarity));
     }
+
+    openWin.appendChild(openLine);
+    openBag.appendChild(openWin);
+    openBag.appendChild(openShow);
+    openBag.appendChild(bagAnim);
+
+    blackScreen.innerHTML = "";
+    blackScreen.appendChild(openBag);
+
+    catmenu();
+    SKIN_MANAGER.renderAll();
+    setTimeout(() => caseEnd(result.cat, SKIN_MANAGER.rarityValues[result.rarity], isFirst), 5000);
+
+    saveState.quests.forEach((quest, i) => {
+        setTimeout(() => {
+            if(quests.conditions[`quest${quest.id}`](result.rarity)) completeQuest(quest.id, i);
+        }, 200 * i);
+    });
 }
 
 function collectDaily() {

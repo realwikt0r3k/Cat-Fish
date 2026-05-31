@@ -41,11 +41,11 @@ let gameState = {
     chances: {
         goodFish: 100,
         badFish: 100,
-        timeFish: 15,
+        timeFish: 10,
         goldFish: 0.5,
         deathFish: 1,
         coin: 5,
-        freezeFish: 2.5
+        freezeFish: 2
     },
     timeFishBonus: 2,
     multipliers: {
@@ -63,7 +63,7 @@ let saveState = {
     daily: true,
     music: false,
     sfx: true,
-    unlockedCats: Array(_catCounter).fill(false),
+    unlockedCats: [0],
     stats: {
         collectibles: {
             goodFish: 0,
@@ -88,6 +88,38 @@ let saveState = {
         { id: Math.floor(Math.random() * _questCounter + 1), desc: null, reward: null, status: false }
     ]
 };
+
+const CONSTS = {
+    SKINS: {
+        SKIN_SOURCES: {
+            DEFAULT: "default",
+            SHOP: "shop",
+            CASE: "case"
+        },
+        SKIN_RARITIES: {
+            COMMON: {
+                cost: 150,
+                rarity: "common",
+                chance: 100
+            },
+            RARE: {
+                cost: 300,
+                rarity: "rare",
+                chance: 35
+            },
+            EPIC: {
+                cost: 500,
+                rarity: "epic",
+                chance: 15
+            },
+            MYTHIC: {
+                cost: 1500,
+                rarity: "mythic",
+                chance: 2
+            },
+        }
+    }
+}
 
 class Player {
     detectCollision() {
@@ -164,13 +196,461 @@ class Point {
     }
 }
 
+class Skin {
+    constructor(def) {
+        Object.assign(this, def);
+        this.unlocked = def.cost === 0;
+    }
+
+    get isCaseOnly() {
+        return this.source === CONSTS.SKINS.SKIN_SOURCES.CASE
+    }
+
+    get canBuy() {
+        return this.source === CONSTS.SKINS.SKIN_SOURCES.SHOP
+            && !this.unlocked
+            && saveState.coins >= this.cost;
+    }
+
+    get getDescription() {
+        const desc = this.description[saveState.lang];
+        if(this.id == 0) return `<p>${desc.default}</p>`;
+        if(this.id == 11) {
+            if (gameState.randomEvent == 0) return `<p>${desc.default}</p>`;
+            return `<p><span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${desc[`random_event_${gameState.randomEvent}`]}</span></p>`
+        }
+        return `<p>
+            <span style='color: #87e894'>${desc.buff}</span>
+            <br>
+            <span style='color: #ff7486'>${desc.debuff}</span>
+        </p>`;
+    }
+
+    get imageSrc() {
+        return `images/cats/cat${this.id + 1}.png`;
+    }
+
+    get lockSrc() {
+        return this.isCaseOnly ? `images/cats/locks/lock_case.png` : `images/cats/locks/lock${this.cost}.png`;
+    }
+
+    applyModifiers() {
+        if(this.modifiers) this.modifiers();
+    }
+
+    onPickup = {
+        goodFish: () => {
+            if(this.behaviors?.onPickup?.goodFish) this.behaviors.onPickup.goodFish();
+            else gameState.counter++;
+        },
+        badFish: () => {
+            if(this.behaviors?.onPickup?.badFish) this.behaviors.onPickup.badFish();
+            else gameState.counter -= 3;
+        },
+        timeFish: () => {
+            if(this.behaviors?.onPickup?.timeFish) this.behaviors.onPickup.timeFish();
+            else gameState.timer += gameState.timeFishBonus;
+        },
+        goldFish: () => {
+            if(this.behaviors?.onPickup?.goldFish) this.behaviors.onPickup.goldFish();
+            else {
+                gameState.timer += 5;
+                gameState.counter += 10;
+            };
+        },
+        deathFish: () => {
+            if(this.behaviors?.onPickup?.deathFish) this.behaviors.onPickup.deathFish();
+            else {
+                gameState.timer -= 5;
+                gameState.counter -= 10;
+            };
+        },
+        freezeFish: () => {
+            if(this.behaviors?.onPickup?.freezeFish) this.behaviors.onPickup.freezeFish();
+            else gameState.freezeFishTime = 3;
+        },
+    }
+
+    unlock() {
+        if(this.unlocked || this.isCaseOnly) return false;
+        if(saveState.coins < this.cost) return false;
+        saveState.coins -= this.cost;
+        this.unlocked = true;
+        return true;
+    }
+
+    unlockFromCase() {
+        if(this.unlocked) return false;
+        this.unlocked = true;
+        return true;
+    }
+
+    render(isSelected) {
+        const child = document.createElement("div");
+        child.className = "skin";
+
+        const img = document.createElement("img");
+        img.src = this.imageSrc;
+        img.width = 100;
+        img.height = 100;
+
+        if(!this.unlocked) {
+            img.style.filter = "brightness(25%)";
+            const lock = document.createElement("img");
+            lock.src = this.lockSrc;
+            lock.className = "locked";
+            child.appendChild(img);
+            child.appendChild(lock);
+        } else {
+            img.style.filter = isSelected ? "brightness(100%)" : "brightness(50%)";
+            child.appendChild(img);
+        }
+
+        child.addEventListener("click", () => SKIN_MANAGER.onSkinClick(this));
+        return child;
+    }
+}
+
+const SKIN_MANAGER = {
+    rarityValues: {
+        common: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost / 2,
+        rare: CONSTS.SKINS.SKIN_RARITIES.RARE.cost / 2,
+        epic: CONSTS.SKINS.SKIN_RARITIES.EPIC.cost / 2,
+        mythic: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost / 2,
+    },
+
+    skins: [
+        new Skin({
+            id: 0,
+            cost: 0,
+            rarity: "default",
+            source: CONSTS.SKINS.SKIN_SOURCES.DEFAULT,
+            description: {
+                en: { default: "Your default cat." },
+                pl: { default: "Twój domyślny kot." }
+            },
+            modifiers: null,
+            behaviors: null
+        }),
+        new Skin({
+            id: 1,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.COMMON.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 10% faster cat", debuff: "- 5% less coins" },
+                pl: { buff: "+ 10% szybszy kot", debuff: "- 5% mniej monet" }
+            },
+            modifiers: () => {
+                gameState.cat.speed = 7.7;
+                gameState.multipliers.coins = 0.95;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 2,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.COMMON.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 5% more chance for a Coin", debuff: "- 5% less chance for Time Fish" },
+                pl: { buff: "+ 5% więcej szans na Monetę", debuff: "- 5% mniej szans na Rybkę Czasu" }
+            },
+            modifiers: () => {
+                gameState.chances.timeFish = 89.775;
+                gameState.chances.coin = 80.75;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 3,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.COMMON.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 5% more chance for Time Fish", debuff: "- 5% less chance for a Coin" },
+                pl: { buff: "+ 5% więcej szans na Rybkę Czasu", debuff: "- 5% mniej szans na Monetę" }
+            },
+            modifiers: () => {
+                gameState.chances.timeFish = 85.5;
+                gameState.chances.coin = 84.7875;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 4,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 10% chance for Bad Fish to give 3 points instead of taking them", debuff: "- 5% chance for Good Fish to not give any point" },
+                pl: { buff: "+ 10% szansy na to, że Zła Rybka da 3 punkty zamiast ich zabrać", debuff: "- 5% szans na to, że Dobra Rybka nie da punktów" }
+            },
+            modifiers: null,
+            behaviors: {
+                onPickup: {
+                    goodFish: () => {
+                        if(chance(5)) return;
+                        gameState.counter++;
+                    },
+                    badFish: () => {
+                        if(chance(10)) gameState.counter++;
+                        else gameState.counter -= 3;
+                    },
+                },
+            }
+        }),
+        new Skin({
+            id: 5,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 10% chance for DOUBLE and 5% for TRIPLE points from Good Fish", debuff: "- 5% chance for Bad Fish to take 10 points" },
+                pl: { buff: "+ 10% szans na PODWÓJNE oraz 5% na POTRÓJNE punkty z Dobrej Rybki", debuff: "- 5% szansy na to, że Zła Rybka zabierze 10 punktów" }
+            },
+            modifiers: null,
+            behaviors: {
+                onPickup: {
+                    goodFish: () => {
+                        if(chance(5))       gameState.counter += 3;
+                        else if(chance(10)) gameState.counter += 2;
+                        else                gameState.counter++;
+                    },
+                    badFish: () => {
+                        if(chance(5)) gameState.counter -= 5;
+                        else          gameState.counter -= 3;
+                    },
+                },
+            }
+        }),
+        new Skin({
+            id: 6,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 100% more chance for Gold Fish", debuff: "- 20% chance for Good Fish to take 1 point" },
+                pl: { buff: "+ 100% więcej szans na Złotą Rybkę", debuff: "- 20% szans na to, że Dobra Rybka zabierze punkt" }
+            },
+            modifiers: () => {
+                gameState.chances.goldFish = 1;
+            },
+            behaviors: {
+                onPickup: {
+                    goodFish: () => {
+                        if(chance(20)) gameState.counter--;
+                        else           gameState.counter++;
+                    },
+                },
+            }
+        }),
+        new Skin({
+            id: 7,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 5 additional fish", debuff: "- 25% smaller cat" },
+                pl: { buff: "+ 5 dodatkowych rybek", debuff: "- 25% mniejszy kot" }
+            },
+            modifiers: () => {
+                gameState.cat.size = 45;
+                gameState.collectibles_limit += 5;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 8,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 10% bigger cat", debuff: "- 5% slower cat" },
+                pl: { buff: "+ 10% większy kot", debuff: "- 5% wolniejszy kot" }
+            },
+            modifiers: () => {
+                gameState.cat.size = 55;
+                gameState.cat.speed = 6.65;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 9,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.EPIC.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.EPIC.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ 5 additional seconds at start", debuff: "- 1 Good Fish becomes a Bad Fish" },
+                pl: { buff: "+ 5 dodatkowych sekund na start", debuff: "- 1 Dobra Rybka staje się Złą Rybką" }
+            },
+            modifiers: () => {
+                gameState.timer = 20;
+                gameState.collectibles_bad_limit--;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 10,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.EPIC.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.EPIC.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
+            description: {
+                en: { buff: "+ Time Fish gives 1 second more", debuff: "- You start with only 6 seconds" },
+                pl: { buff: "+ Time Fish daje ci o 1 sekundę więcej", debuff: "- Zaczynasz posiadając tylko 6 sekund" }
+            },
+            modifiers: () => {
+                gameState.timeFishBonus = 3;
+                gameState.timer = 6;
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 11,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.CASE,
+            description: {
+                en: {
+                    default: "Playing with this cat you have a chance for those events:",
+                    random_event_1: "RANDOM EVENT: + 10% faster cat",
+                    random_event_2: "RANDOM EVENT: + 10% more coins",
+                    random_event_3: "RANDOM EVENT: + 5% more points",
+                    random_event_4: "RANDOM EVENT: - You start with only 10 seconds",
+                    random_event_5: "RANDOM EVENT: - 5% less coins",
+                    random_event_6: "RANDOM EVENT: - 25% smaller cat"
+                },
+                pl: {
+                    default: "Grając tym kotem masz szansę na te wydarzenia:",
+                    random_event_1: "RANDOM EVENT: + 10% szybszy kot",
+                    random_event_2: "RANDOM EVENT: + 10% więcej monet",
+                    random_event_3: "RANDOM EVENT: + 5% więcej punktów",
+                    random_event_4: "RANDOM EVENT: - Zaczynasz posiadając tylko 10 sekund",
+                    random_event_5: "RANDOM EVENT: - 5% mniej monet",
+                    random_event_6: "RANDOM EVENT: - 25% mniejszy kot"
+                }
+            },
+            modifiers: () => {
+                gameState.randomEvent = Math.floor(Math.random() * 6 + 1);
+                switch(gameState.randomEvent) {
+                    case 1: gameState.cat.speed = 7.7; break;
+                    case 2: gameState.multipliers.coins = 1.1; break;
+                    case 3: gameState.multipliers.points = 1.05; break;
+                    case 4: gameState.timer = 12; break;
+                    case 5: gameState.multipliers.coins = 0.95; break;
+                    case 6: gameState.cat.size = 37.5; break;
+                }
+            },
+            behaviors: null
+        }),
+        new Skin({
+            id: 12,
+            rarity: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.rarity,
+            cost: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost,
+            source: CONSTS.SKINS.SKIN_SOURCES.CASE,
+            description: {
+                en: { buff: "+ You start with 25 seconds", debuff: "- Time Fish only freeze your time for 1 second" },
+                pl: { buff: "+ Zaczynasz z 25 sekundami", debuff: "- Rybki czasu jedynie zamrażają twój czas na 1 sekunde" }
+            },
+            modifiers: () => {
+                gameState.timer = 25;
+            },
+            behaviors: {
+                onPickup: {
+                    timeFish: () => {
+                        gameState.freezeFishTime = gameState.freezeFishTime < 1 ? 1 : gameState.freezeFishTime;
+                        updateTimerDisplay();
+                    },
+                },
+            }
+        })
+    ],
+
+    get selected() {
+        return this.skins[saveState.cat];
+    },
+
+    rollCaseResult() {
+        let rarity;
+        if(chance(CONSTS.SKINS.SKIN_RARITIES.MYTHIC.chance)) rarity = "mythic";
+        else if(chance(CONSTS.SKINS.SKIN_RARITIES.EPIC.chance)) rarity = "epic";
+        else if(chance(CONSTS.SKINS.SKIN_RARITIES.RARE.chance)) rarity = "rare";
+        else rarity = "common";
+
+        const pool = this.skins.filter(skin => skin.rarity === rarity);
+        const cat = pool[Math.floor(Math.random() * pool.length)];
+
+        return { cat: cat.id, rarity };
+    },
+
+    buildReelBox(cat, rarity) {
+        const box = document.createElement("div");
+        box.className = [`box ${rarity}`];
+        const img = document.createElement("img");
+        img.width = 90;
+        img.height = 90;
+        img.src = `images/cats/cat${cat + 1}.png`;
+        box.appendChild(img);
+        return box;
+    },
+
+    onSkinClick(skin) {
+        if(skin.unlocked) {
+            playSound(SFX.UI.click);
+            saveState.cat = skin.id;
+            this.renderAll();
+        } else if(skin.isCaseOnly) {
+            playSound(SFX.UI.buy_cat_fail);
+            document.querySelector("#catdescription").innerHTML =
+                UI[saveState.lang].shop.case_only;
+        } else {
+            if(skin.unlock()) {
+                playSound(SFX.UI.buy_cat);
+                this.renderAll();
+            } else {
+                playSound(SFX.UI.buy_cat_fail);
+            }
+        }
+        document.querySelector("#catdescription").innerHTML = this.selected.getDescription;
+        document.querySelector("#coinsshop").innerHTML =
+            UI[saveState.lang].shop.your_coins + " " + saveState.coins +
+            ' <img src="images/UI/moneta.png" />';
+    },
+
+    renderAll() {
+        const parent = document.querySelector("#cats");
+        parent.innerHTML = "";
+        this.skins.forEach(skin => {
+            parent.appendChild(skin.render(skin.id === saveState.cat));
+        });
+        document.querySelector("#cat").src = this.selected.imageSrc;
+        document.querySelector("#catdescription").innerHTML = this.selected.getDescription;
+    },
+
+    applySelected() {
+        this.selected.applyModifiers();
+    },
+
+    load() {
+        saveState.unlockedCats.forEach(id => {
+            if(this.skins[id]) this.skins[id].unlocked = true;
+        });
+    },
+
+    save() {
+        saveState.unlockedCats = this.skins
+            .filter(skin => skin.unlocked)
+            .map(skin => skin.id);
+    }
+};
+
 const player = new Player();
 
 const background_music = new Audio("audio/bg_music.mp3");
 background_music.volume = 0.65;
 background_music.loop = true;
-background_music.preservesPitch = false;
-background_music.playbackRate = 1.15;
+background_music.preservesPitch = true;
+background_music.playbackRate = 1.0;
 background_music.muted = !saveState.music;
 
 const SFX = {
@@ -226,19 +706,19 @@ const SFX = {
         pickup: {
             coin: {
                 source: "audio/pickup/coin.mp3",
-                volume: 0.45,
-                pitch_preserve: true,
-                playback_rate: 1
+                volume: 0.6,
+                pitch_preserve: false,
+                playback_rate: 1.1
             },
             fish: {
                 source: "audio/pickup/fish.mp3",
-                volume: 0.3,
+                volume: 0.45,
                 pitch_preserve: false,
                 playback_rate: (Math.random() / 2) + 1.25
             },
             bad: {
                 source: "audio/pickup/bad.mp3",
-                volume: 0.3,
+                volume: 0.4,
                 pitch_preserve: false,
                 playback_rate: (Math.random() / 2) + 1.25
             },
@@ -250,9 +730,9 @@ const SFX = {
             },
             freeze: {
                 source: "audio/pickup/freeze.mp3",
-                volume: 0.8,
-                pitch_preserve: true,
-                playback_rate: 1
+                volume: 1,
+                pitch_preserve: false,
+                playback_rate: 0.7
             },
         }
     }
@@ -274,7 +754,7 @@ const COLLECTIBLES = {
             image: () => document.querySelector("#goodfish"),
             sound: SFX.INGAME.pickup.fish,
             onCollect() {
-                gameState.counter++;
+                SKIN_MANAGER.selected.onPickup.goodFish();
                 gameState.collectibles.goodFish++;
             },
             rollNextType() {
@@ -289,10 +769,9 @@ const COLLECTIBLES = {
             image: () => document.querySelector("#timefish"),
             sound: SFX.INGAME.pickup.fish,
             onCollect() {
-                gameState.timer += gameState.timeFishBonus;
-                if(gameState.timer > 25) gameState.timer = 25;
+                SKIN_MANAGER.selected.onPickup.timeFish();
                 gameState.collectibles.timeFish++;
-                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
+                updateTimerDisplay();
             },
             rollNextType() {
                 if ( chance(gameState.chances.timeFish) ) return "Time";
@@ -306,11 +785,9 @@ const COLLECTIBLES = {
             image: () => document.querySelector("#goldfish"),
             sound: SFX.INGAME.pickup.coin,
             onCollect() {
-                gameState.timer += 5;
-                if(gameState.timer > 25) gameState.timer = 25;
-                gameState.counter += 10;
+                SKIN_MANAGER.selected.onPickup.goldFish();
                 gameState.collectibles.goldFish++;
-                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
+                updateTimerDisplay();
             },
             rollNextType() {
                 return "Points";
@@ -327,16 +804,7 @@ const COLLECTIBLES = {
             sound: SFX.INGAME.pickup.bad,
             image: () => document.querySelector("#badfish"),
             onCollect() {
-                switch (cat) {
-                    case 4:
-                        (chance(10)) ? gameState.counter -= 3 : gameState.counter++;
-                        break;
-                    case 5:
-                        gameState.counter -= chance(5) ? 5 : 3;
-                        break;
-                    default:
-                        gameState.counter -= 3; 
-                }
+                SKIN_MANAGER.selected.onPickup.badFish();
                 gameState.collectibles.badFish++;
             },
             rollNextType() {
@@ -348,10 +816,9 @@ const COLLECTIBLES = {
             sound: SFX.INGAME.pickup.fish,
             image: () => document.querySelector("#deadfish"),
             onCollect() {
-                gameState.counter -= 10;
-                gameState.timer -= 5;
+                SKIN_MANAGER.selected.onPickup.deathFish();
                 gameState.collectibles.deathFish++;
-                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
+                updateTimerDisplay();
             },
             rollNextType() {
                 return "Bad";
@@ -364,9 +831,9 @@ const COLLECTIBLES = {
             sound: SFX.INGAME.pickup.freeze,
             image: () => document.querySelector("#freezefish"),
             onCollect() {
+                SKIN_MANAGER.selected.onPickup.freezeFish();
                 gameState.collectibles.freezeFish++;
-                gameState.freezeFishTime = 3;
-                document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
+                updateTimerDisplay();
             },
             rollNextType() {
                 if ( chance(gameState.chances.timeFish) ) return "Time";
@@ -581,7 +1048,7 @@ const quests = {
         quest4: () => (gameState.collectibles.all >= 100),
         quest5: () => (gameState.collectibles.goodFish >= 30),
         quest6: () => (gameState.collectibles.goodFish >= 10 && (gameState.collectibles.badFish + gameState.collectibles.deathFish) < 1),
-        quest7: (bags) => (bags < saveState.stats.bags),
+        quest7: () => true,
         quest8: (rarity) => (rarity == "rare"),
         quest9: (rarity) => (rarity == "epic"),
         quest10: (rarity) => (rarity == "mythic"),
@@ -600,7 +1067,7 @@ const quests = {
 function completeQuest(questID, slotIndex) {
     playSound(SFX.UI.buy_cat);
 
-    saveState.coin += quests.rewards[`quest${questID}`];
+    saveState.coins += quests.rewards[`quest${questID}`];
     saveState.stats.other.quests++;
 
     let screen = document.querySelector("body");
