@@ -66,7 +66,7 @@ async function loadGame() {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('mainmenu').style.display = 'inline';
 
-        if(saveState.music) setTimeout(function () {
+        setTimeout(function () {
             background_music.play();
         }, 5000);
     });
