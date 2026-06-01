@@ -217,13 +217,13 @@ function game() {
             showPanel("#gameover");
 
             saveState.quests.forEach((quest, i) => {
-                setTimeout(function () {
-                    if(quests.conditions["quest" + quest.id]()) completeQuest(quest.id, i);
-                }, 200 * i)
+                const completed = quests.conditions["quest" + quest.id]();
+                setTimeout(() => {
+                    if (completed) completeQuest(quest.id, i);
+                }, 200 * i);
             });
 
             const personal_record = saveState.stats.other.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.highestScore}</span>` : '';
-            if (saveState.stats.other.highestScore < gameState.counter) saveState.stats.other.highestScore = gameState.counter;
 
             let end_stats = `<p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`;
             end_stats += `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>`
