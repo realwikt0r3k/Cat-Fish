@@ -41,16 +41,19 @@ async function loadGame() {
             const path = `${folder}/${file}`;
             const isAudio = folder.startsWith('audio');
             tasks.push({
-                label: `Loading ${folder}/${file}`,
+                key: path,
+                label: `Loading ${path}`,
                 load: () => isAudio ? loadAudio(path) : loadImage(path)
             })
         }
     }
 
+    console.log(tasks.map(t => t.key));
+
     for (let i = 0; i < tasks.length; i++) {
         try {
             loadingText.textContent = tasks[i].label;
-            await tasks[i].load();
+            assets[tasks[i].key] = await tasks[i].load();
             progressFill.style.width = `${((i + 1) / tasks.length) * 100}%`;
         } catch (err) {
             console.warn(`Failed to load: ${tasks[i].label}`, err);
