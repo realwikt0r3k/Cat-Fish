@@ -1,11 +1,6 @@
-window.onload = function () {
-    loadGame();
+window.onload = async function () {
+    await loadGame();
     SKIN_MANAGER.load();
-    mainmenu();
-
-    setTimeout(function () {
-        background_music.play();
-    }, 5000);
 }
 
 window.onbeforeunload = function () {

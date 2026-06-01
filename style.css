@@ -121,6 +121,29 @@ canvas {
         display: none;
     }
 
+    #loading-screen {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+
+        justify-content: center;
+        align-items: center;
+        color: #7fafff;
+    }
+
+    #progress-bar {
+        width: 300px;
+        height: 25px;
+        background-color: rgb(100, 133, 169);
+    }
+
+    #progress-fill {
+        width: 0%;
+        height: 25px;
+        background-color: rgb(121, 182, 128);
+    }
+
     #mainmenu {
         display: none;
     }
