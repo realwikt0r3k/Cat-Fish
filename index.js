@@ -278,7 +278,7 @@ function infomenu() {
     showPanel("#infomenu");
 
     document.querySelector("#infomenu").innerHTML = `<div id="gameinfo">` +
-        `<span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>${UI[saveState.lang].infos.all_fish}</u></span>` +
+        `<span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>${UI[saveState.lang].infos.all}</u></span>` +
         `<div>` +
         `<img src="images/fish/rybka.png" width="40px" height="40px" />` +
         `<p>&nbsp;${UI[saveState.lang].infos.goodFish}</p>` +

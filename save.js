@@ -84,6 +84,19 @@ async function loadGame() {
     if (saveState.music) document.querySelector("#music").classList = ["sound"]
     else document.querySelector("#music").classList = ["sound off"]
 
+    SFX.MISC.COUNTDOWN.count3.source = assets["audio/countdown.mp3"];
+    SFX.MISC.COUNTDOWN.count2.source = assets["audio/countdown.mp3"];
+    SFX.MISC.COUNTDOWN.count1.source = assets["audio/countdown.mp3"];
+    SFX.MISC.GAME_START.source = assets["audio/start_game.mp3"];
+    SFX.UI.click.source = assets["audio/UI/button_click.wav"];
+    SFX.UI.buy_cat.source = assets["audio/UI/shop_buy_cat.wav"];
+    SFX.UI.buy_cat_fail.source = assets["audio/UI/shop_not_enough.wav"];
+    SFX.INGAME.pickup.coin.source = assets["audio/pickup/coin.mp3"];
+    SFX.INGAME.pickup.fish.source = assets["audio/pickup/fish.mp3"];
+    SFX.INGAME.pickup.bad.source = assets["audio/pickup/bad.mp3"];
+    SFX.INGAME.pickup.fish_rare.source = assets["audio/pickup/fish_rare.ogg"];
+    SFX.INGAME.pickup.freeze.source = assets["audio/pickup/freeze.mp3"];
+
     saveState.quests.forEach(quest => {
         quest.desc = quests.descriptions[saveState.lang][`quest${quest.id}`];
         quest.reward = quests.rewards[`quest${quest.id}`];

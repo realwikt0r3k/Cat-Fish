@@ -5,8 +5,7 @@ const ctx = c.getContext("2d");
 const _catCounter = 12;
 const _questCounter = 17;
 
-let animationFrame = null,
-  timerInterval = null;
+let animationFrame = null, timerInterval = null;
 let vxr = 0,
   vxl = 0,
   vy = 0,
@@ -851,7 +850,8 @@ const SFX = {
 
 function playSound(soundToPlay) {
   if (saveState.sfx) {
-    const sound = new Audio(soundToPlay.source);
+    const sound = new Audio(soundToPlay.source.src);
+    console.log(sound);
     sound.preservesPitch = soundToPlay.pitch_preserve;
     sound.playbackRate = soundToPlay.playback_rate;
     sound.volume = soundToPlay.volume;
