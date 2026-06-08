@@ -5,7 +5,7 @@ function saveGame() {
 
 const manifest = {
     'audio/pickup': ['fish.mp3', 'coin.mp3', 'bad.mp3', 'fish_rare.ogg', 'freeze.mp3'],
-    'audio/UI': ['button_click.wav', 'shop_buy_cat.wav', 'shop_not_enough.wav'],
+    'audio/UI': ['button_click.wav', 'shop_buy_cat.wav', 'shop_not_enough.wav', 'opening_sound.mp3'],
     'audio': ['bg_music.mp3', 'countdown.mp3', 'start_game.mp3'],
 
     'images/cats': ['cat1.png', 'cat2.png', 'cat3.png', 'cat4.png', 'cat5.png', 'cat6.png',
@@ -67,7 +67,7 @@ async function loadGame() {
 
     document.getElementById('loading-screen').addEventListener('click', () => {
         document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('mainmenu').style.display = 'inline';
+        mainmenu();
 
         setTimeout(function () {
             background_music.play();
@@ -89,6 +89,7 @@ async function loadGame() {
     SFX.MISC.COUNTDOWN.count1.source = assets["audio/countdown.mp3"];
     SFX.MISC.GAME_START.source = assets["audio/start_game.mp3"];
     SFX.UI.click.source = assets["audio/UI/button_click.wav"];
+    SFX.UI.bag_opening.source = assets["audio/UI/opening_sound.mp3"];
     SFX.UI.buy_cat.source = assets["audio/UI/shop_buy_cat.wav"];
     SFX.UI.buy_cat_fail.source = assets["audio/UI/shop_not_enough.wav"];
     SFX.INGAME.pickup.coin.source = assets["audio/pickup/coin.mp3"];
@@ -98,7 +99,7 @@ async function loadGame() {
     SFX.INGAME.pickup.freeze.source = assets["audio/pickup/freeze.mp3"];
 
     saveState.quests.forEach(quest => {
-        quest.desc = quests.descriptions[saveState.lang][`quest${quest.id}`];
-        quest.reward = quests.rewards[`quest${quest.id}`];
+        quest.desc = quests[`quest_${quest.id}`].description[saveState.lang]
+        quest.reward = quests[`quest_${quest.id}`].reward
     })
 };

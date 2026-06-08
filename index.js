@@ -8,9 +8,9 @@ window.onbeforeunload = function () {
 }
 
 function showPanel(panelId) {
-    ["#mainmenu", "#catmenu", "#infomenu", "#questsmenu", "#gameover", "#startingtimer", "#game"].forEach(id => 
+    ["#mainmenu", "#catmenu", "#infomenu", "#questsmenu", "#gameover", "#startingtimer", "#game"].forEach(id =>
         document.querySelector(id).style.display = "none");
-    document.querySelector(panelId).style.display = "inline";
+    document.querySelector(panelId).style.display = "grid";
 }
 
 function changeLanguage(selectLanguage) {
@@ -19,11 +19,11 @@ function changeLanguage(selectLanguage) {
     document.querySelector("#counter").textContent = UI[saveState.lang].ingame.your_points + " " + gameState.counter;
     document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + gameState.timer;
     document.querySelector("#coinsshop").innerHTML = UI[saveState.lang].shop.your_coins + " " + saveState.coins + ' <img src="images/UI/moneta.png" />';
-    
+
     document.querySelector("#catdescription").innerHTML = SKIN_MANAGER.selected.getDescription;
 
     let personal_record = saveState.stats.other.highestScore < gameState.counter ? `<span style="color: #ff7486; font-size: 35%;">${UI[saveState.lang].gameover.personal_best}</span>` : '';
-    
+
     let end_stats = `<p id="#endcounter">${UI[saveState.lang].gameover.your_points} ${gameState.counter} ${personal_record}</p>`;
     end_stats += `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>`
 
@@ -129,7 +129,7 @@ function startGame(startTime) {
 }
 
 function updateTimerDisplay() {
-    if(gameState.timer > 25) gameState.timer = 25;
+    if (gameState.timer > 25) gameState.timer = 25;
 
     document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " "
         + (gameState.freezeFishTime != 0 ? "❄ " : "")
@@ -178,11 +178,11 @@ function game() {
 
     if (saveState.cat == 11) {
         document.querySelector("#randomEvent").innerHTML = `<p>` +
-            `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${SKIN_MANAGER.selected.getDescription}</span>`
+            `<span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${SKIN_MANAGER.selected.getRandomEvent}</span>`
     } else document.querySelector("#randomEvent").innerHTML = "";
 
     document.querySelector("#timer").textContent = UI[saveState.lang].ingame.your_time + " " + (gameState.freezeFishTime != 0 ? "❄ " : "") + gameState.timer + (gameState.freezeFishTime != 0 ? " ❄" : "");
-    
+
     document.querySelector("#cat").src = SKIN_MANAGER.selected.imageSrc;
 
     gameState.canPlay = true;
@@ -217,9 +217,23 @@ function game() {
             showPanel("#gameover");
 
             saveState.quests.forEach((quest, i) => {
-                const completed = quests.conditions["quest" + quest.id]();
+                const completed = quests[`quest_${quest.id}`].condition();
                 setTimeout(() => {
-                    if (completed) completeQuest(quest.id, i);
+                    if (completed) {
+                        quest.status = true;
+                        let screen = document.querySelector("body");
+                        let child = document.createElement("span");
+                        child.innerHTML = `
+                            Quest ${i + 1} complete!
+                        `;
+                        child.id = "dailyrewardpopup";
+                        screen.appendChild(child);
+                        document.querySelector("#dailyreward").style.filter = "saturate(0)";
+                        setTimeout(
+                            () => screen.removeChild(document.querySelector("#dailyrewardpopup")),
+                            1000,
+                        );
+                    }
                 }, 200 * i);
             });
 
@@ -229,14 +243,14 @@ function game() {
             end_stats += `<p id="#endcoins">${UI[saveState.lang].gameover.your_coins} ${saveState.coins} <img src="images/UI/moneta.png"/></p>`
 
             Object.keys(gameState.collectibles).forEach(stat => {
-                end_stats += `<br><span style="font-size: 75%">${UI[saveState.lang].gameover[stat]} ${gameState.collectibles[stat]}</span>`
+                end_stats += `<span style="font-size: 75%">${UI[saveState.lang].gameover[stat]} ${gameState.collectibles[stat]}</span><br>`
             })
 
             document.querySelector("#endstats").innerHTML = end_stats;
         }
     }
 
-    for(i=1;i<=gameState.collectibles_limit;i++) {
+    for (i = 1; i <= gameState.collectibles_limit; i++) {
         console.log(`${i} / ${gameState.collectibles_limit}`)
         collectibles.push(
             new Point((i < gameState.collectibles_bad_limit) ? false : true, (i == gameState.collectibles_limit) ? "Time" : undefined)
@@ -338,7 +352,7 @@ function infomenu() {
 function catmenu() {
     playSound(SFX.UI.click);
     document.querySelector("#coinsshop").innerHTML = UI[saveState.lang].shop.your_coins + " " + saveState.coins + ' <img src="images/UI/moneta.png" />';
-    
+
     SKIN_MANAGER.renderAll();
 
     let stats = `<p id="statstitle">${UI[saveState.lang].stats.stats}</p>`;
@@ -348,7 +362,7 @@ function catmenu() {
     Object.keys(saveState.stats.other).forEach(stat => {
         stats += `<p class="underlined">${UI[saveState.lang].stats[stat]} ${saveState.stats.other[stat]}</p>`
     })
-    
+
     document.querySelector("#stats").innerHTML = stats;
 
     showPanel("#catmenu");
@@ -388,7 +402,7 @@ function caseEnd(getCat, moneyShow, isFirst) {
         endCatDesc.innerHTML = UI[saveState.lang].bag.already_has + " <br>" + UI[saveState.lang].bag.instead + " " + moneyShow + " " + UI[saveState.lang].bag.coins;
     } else {
         playSound(SFX.UI.buy_cat);
-        endCatDesc.innerHTML = SKIN_MANAGER.skins[getCat].getDescription
+        endCatDesc.innerHTML = SKIN_MANAGER.skins[getCat].getBoxDescription
     }
     endCat.appendChild(endCatImg);
 
@@ -403,15 +417,17 @@ function caseEnd(getCat, moneyShow, isFirst) {
 }
 
 function openCase() {
-    if(saveState.coins < 250) { playSound(SFX.UI.buy_cat_fail); return; }
+    if (saveState.coins < 250) { playSound(SFX.UI.buy_cat_fail); return; }
 
     saveState.coins -= 250;
     saveState.stats.other.bags++;
 
+    playSound(SFX.UI.bag_opening);
+
     const result = SKIN_MANAGER.rollCaseResult();
     const skin = SKIN_MANAGER.skins[result.cat];
     const isFirst = skin.unlockFromCase();
-    if(!isFirst) saveState.coins += SKIN_MANAGER.rarityValues[result.rarity];
+    if (!isFirst) saveState.coins += SKIN_MANAGER.rarityValues[result.rarity];
 
     const blackScreen = document.querySelector(".blackscreen");
     const openBag = document.createElement("div");
@@ -427,7 +443,7 @@ function openCase() {
     bagAnim.className = "baganimation";
     bagAnim.src = "images/cats/bag/cat_bag.png";
 
-    for(let i = 0; i < 30; i++) {
+    for (let i = 0; i < 30; i++) {
         const roll = i === 27 ? result : SKIN_MANAGER.rollCaseResult();
         openLine.appendChild(SKIN_MANAGER.buildReelBox(roll.cat, roll.rarity));
     }
@@ -446,7 +462,22 @@ function openCase() {
 
     saveState.quests.forEach((quest, i) => {
         setTimeout(() => {
-            if(quests.conditions[`quest${quest.id}`](result.rarity)) completeQuest(quest.id, i);
+            if (quests[`quest_${quest.id}`].condition(result.rarity)) {
+                quest.status = true;
+
+                let screen = document.querySelector("body");
+                let child = document.createElement("span");
+                child.innerHTML = `
+                        Quest ${i + 1} complete!
+                    `;
+                child.id = "dailyrewardpopup";
+                screen.appendChild(child);
+                document.querySelector("#dailyreward").style.filter = "saturate(0)";
+                setTimeout(
+                    () => screen.removeChild(document.querySelector("#dailyrewardpopup")),
+                    1000,
+                );
+            }
         }, 200 * i);
     });
 }
@@ -476,7 +507,16 @@ function questmenu() {
     let allQuests = document.querySelectorAll(".quest");
 
     allQuests.forEach((element, i) => {
-        element.innerHTML = saveState.quests[i].desc + "</br><span style='font-size: 65%; color: azure;'>Reward: " + saveState.quests[i].reward + "</span>";
+        element.innerHTML = `
+            ${saveState.quests[i].desc}</br>
+            <span style='font-size: 65%; color: azure;'>
+                ID: ${saveState.quests[i].id} | Reward: ${saveState.quests[i].reward} | 
+            </span>
+            <button style="padding: 5px; background-color: ${saveState.quests[i].status ? `green` : "gray"}; color: ${saveState.quests[i].status ? `#e3e3e3` : "#e3e3e3"}; font-weight: 700;"
+                ${saveState.quests[i].status ? `onclick='completeQuest(${saveState.quests[i].id}, ${i})'` : "disabled"}>
+                COLLECT
+            </button>
+        `;
     })
 
     showPanel("#questsmenu");

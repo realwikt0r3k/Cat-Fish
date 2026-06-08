@@ -26,7 +26,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style_mobile.css">
+    <!-- <link rel="stylesheet" href="style_mobile.css"> -->
     <link rel="shortcut icon" href="images/cat.ico" type="image/x-icon">
 </head>
 <body>
@@ -41,8 +41,10 @@
 
     <div id="game">
         <canvas id="canvas" width="1000px" height="650px"></canvas>
-        <p id="counter">Your points: 0</p>
-        <p id="timer">Time left: 15</p>
+        <div id="game-stats">
+            <p id="counter">Your points: 0</p>
+            <p id="timer">Time left: 15</p>
+        </div>
 
         <img src="images/cats/cat1.png" id="cat" hidden="true" />
         <img src="images/fish/rybka.png" id="goodfish" hidden="true" />
@@ -72,11 +74,11 @@
 
         <div class="buttons">
             <div onclick="startGame(3)">
-                <img src="images/UI/replay.png" width="125px" height="125px" class="main"/>
+                <img src="images/UI/replay.png" width="100px" height="100px" class="main"/>
             </div>
 
             <div onclick="mainmenu()">
-                <img src="images/UI/mainmenu.png" width="100px" height="100px"/>
+                <img src="images/UI/mainmenu.png" width="80px" height="80px"/>
             </div>
         </div>
     </div>
@@ -112,7 +114,9 @@
         <div id="coinsshop"> </div>
         <div id="cats"></div>
         <div id="catdescription">
-            <p>Loading...</p>
+            <div id="catdescription-box">
+
+            </div>
         </div>
         <div class="bags">
             <div class="bag" onclick="openCase()">
@@ -120,7 +124,7 @@
                 <img src="images/cats/costs/cost_250.png" class="bag_cost" width="80px" height="80px" />
             </div>
         </div>
-        <div id="stats">
+        <div id="stats" hidden="true">
             
         </div>
         <div class="cancel" onclick="mainmenu()">
@@ -135,13 +139,11 @@
     <div id="infomenu"></div>
 
     <div id="questsmenu">
-        <div class="en">
-            <div id="quests">
-                <span style="color: white; font-size: 250%; position: absolute; top: 10%;"><u>Your quests:</u></span>
-                <div class="quest">Lorem Ipsum</div>
-                <div class="quest">Lorem Ipsum</div>
-                <div class="quest">Lorem Ipsum</div>
-            </div>
+        <span>Your quests:</span>
+        <div id="quests">
+            <div class="quest">Lorem Ipsum</div>
+            <div class="quest">Lorem Ipsum</div>
+            <div class="quest">Lorem Ipsum</div>
         </div>
         <div class="cancel" onclick="mainmenu()">
             <img src="images/UI/cancel.png" width="100px" height="100px">

@@ -3,7 +3,7 @@ const c = document.querySelector("#canvas");
 const ctx = c.getContext("2d");
 
 const _catCounter = 12;
-const _questCounter = 17;
+const _questCounter = 26;
 
 let animationFrame = null, timerInterval = null;
 let vxr = 0,
@@ -49,7 +49,7 @@ let gameState = {
     timeFish: 10,
     goldFish: 0.5,
     deathFish: 1,
-    coin: 5,
+    coin: 10,
     freezeFish: 2,
   },
   timeFishBonus: 2,
@@ -249,18 +249,29 @@ class Skin {
     );
   }
 
+  get getBoxDescription() {
+    return `
+      <p>New cat unlocked!</p>
+      <br>
+      <p style="font-size: 150%; font-weight: 400; color: white;">${this.name}</p>
+    `;
+  }
+
+  get getRandomEvent() {
+    const desc = this.description[saveState.lang];
+    if (!desc.random_event_1) return ``;
+    return `
+      <span style="color: ${gameState.randomEvent < 4 ? '#87e894' : '#ff7486'};">${desc[`random_event_${gameState.randomEvent}`]}</span>
+    `;
+  }
+
   get getDescription() {
     const desc = this.description[saveState.lang];
-    if (this.id == 0) return `<p>${desc.default}</p>`;
-    if (this.id == 11) {
-      if (gameState.randomEvent == 0) return `<p>${desc.default}</p>`;
-      return `<p><span style='color: ${gameState.randomEvent < 4 ? "#87e894" : "#ff7486"}'>${desc[`random_event_${gameState.randomEvent}`]}</span></p>`;
-    }
-    return `<p>
-            <span style='color: #87e894'>${desc.buff}</span>
-            <br>
-            <span style='color: #ff7486'>${desc.debuff}</span>
-        </p>`;
+    return `
+      <p style="font-size: 150%; font-weight: 400; color: white;">${this.name}</p>
+      ${desc.default ? `<p style="color: #e8e287;">${desc.default}</p>` : ""}
+      ${desc.buff && desc.debuff ? `<p><span style='color: #87e894;'>${desc.buff}</span> / <span style='color: #ff7486;'>${desc.debuff}</span></p>` : ""}
+    `;
   }
 
   get imageSrc() {
@@ -366,6 +377,7 @@ const SKIN_MANAGER = {
   skins: [
     new Skin({
       id: 0,
+      name: "Whiskers",
       cost: 0,
       rarity: "default",
       source: CONSTS.SKINS.SKIN_SOURCES.DEFAULT,
@@ -378,11 +390,15 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 1,
+      name: "Mouthy",
       rarity: CONSTS.SKINS.SKIN_RARITIES.COMMON.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
-        en: { buff: "+ 10% faster cat", debuff: "- 5% less coins" },
+        en: {
+          buff: "+ 10% speed",
+          debuff: "- 5% earnings"
+        },
         pl: { buff: "+ 10% szybszy kot", debuff: "- 5% mniej monet" },
       },
       modifiers: () => {
@@ -393,13 +409,14 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 2,
+      name: "Plumpy",
       rarity: CONSTS.SKINS.SKIN_RARITIES.COMMON.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
-          buff: "+ 5% more chance for a Coin",
-          debuff: "- 5% less chance for Time Fish",
+          buff: "+ 5% more Coins",
+          debuff: "- 5% less Time Fish",
         },
         pl: {
           buff: "+ 5% więcej szans na Monetę",
@@ -407,20 +424,21 @@ const SKIN_MANAGER = {
         },
       },
       modifiers: () => {
-        gameState.chances.timeFish = 89.775;
-        gameState.chances.coin = 80.75;
+        gameState.chances.timeFish = 5;
+        gameState.chances.coin = 15;
       },
       behaviors: null,
     }),
     new Skin({
       id: 3,
+      name: "Spotty",
       rarity: CONSTS.SKINS.SKIN_RARITIES.COMMON.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.COMMON.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
-          buff: "+ 5% more chance for Time Fish",
-          debuff: "- 5% less chance for a Coin",
+          buff: "+ 5% more Time Fish",
+          debuff: "- 5% less Coins",
         },
         pl: {
           buff: "+ 5% więcej szans na Rybkę Czasu",
@@ -428,20 +446,21 @@ const SKIN_MANAGER = {
         },
       },
       modifiers: () => {
-        gameState.chances.timeFish = 85.5;
-        gameState.chances.coin = 84.7875;
+        gameState.chances.timeFish = 15;
+        gameState.chances.coin = 5;
       },
       behaviors: null,
     }),
     new Skin({
       id: 4,
+      name: "Lover",
       rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
-          buff: "+ 10% chance for Bad Fish to give 3 points instead of taking them",
-          debuff: "- 5% chance for Good Fish to not give any point",
+          buff: "+ 10% chance Bad Fish give points",
+          debuff: "- 5% chance Good Fish does nothing",
         },
         pl: {
           buff: "+ 10% szansy na to, że Zła Rybka da 3 punkty zamiast ich zabrać",
@@ -464,13 +483,14 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 5,
+      name: "Bluey",
       rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
-          buff: "+ 10% chance for DOUBLE and 5% for TRIPLE points from Good Fish",
-          debuff: "- 5% chance for Bad Fish to take 10 points",
+          buff: "+ 10% double & 5% triple Good Fish points",
+          debuff: "- 5% Bad Fish takes 10 points",
         },
         pl: {
           buff: "+ 10% szans na PODWÓJNE oraz 5% na POTRÓJNE punkty z Dobrej Rybki",
@@ -494,13 +514,14 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 6,
+      name: "Phoenix",
       rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
-          buff: "+ 100% more chance for Gold Fish",
-          debuff: "- 20% chance for Good Fish to take 1 point",
+          buff: "+ 100% more Gold Fish",
+          debuff: "- 20% chance Good Fish takes 1 point",
         },
         pl: {
           buff: "+ 100% więcej szans na Złotą Rybkę",
@@ -521,11 +542,12 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 7,
+      name: "Scratch",
       rarity: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
-        en: { buff: "+ 5 additional fish", debuff: "- 25% smaller cat" },
+        en: { buff: "+ 5 more fish", debuff: "- 25% size" },
         pl: { buff: "+ 5 dodatkowych rybek", debuff: "- 25% mniejszy kot" },
       },
       modifiers: () => {
@@ -536,11 +558,12 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 8,
+      name: "Biggie",
       rarity: CONSTS.SKINS.SKIN_RARITIES.RARE.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.RARE.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
-        en: { buff: "+ 10% bigger cat", debuff: "- 5% slower cat" },
+        en: { buff: "+ 10% size", debuff: "- 5% speed" },
         pl: { buff: "+ 10% większy kot", debuff: "- 5% wolniejszy kot" },
       },
       modifiers: () => {
@@ -551,13 +574,14 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 9,
+      name: "Hunger",
       rarity: CONSTS.SKINS.SKIN_RARITIES.EPIC.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.EPIC.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
-          buff: "+ 5 additional seconds at start",
-          debuff: "- 1 Good Fish becomes a Bad Fish",
+          buff: "+ 5 seconds",
+          debuff: "- 1 less Good Fish",
         },
         pl: {
           buff: "+ 5 dodatkowych sekund na start",
@@ -572,13 +596,14 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 10,
+      name: "Calmie",
       rarity: CONSTS.SKINS.SKIN_RARITIES.EPIC.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.EPIC.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.SHOP,
       description: {
         en: {
           buff: "+ Time Fish gives 1 second more",
-          debuff: "- You start with only 6 seconds",
+          debuff: "- Only 6 seconds at start",
         },
         pl: {
           buff: "+ Time Fish daje ci o 1 sekundę więcej",
@@ -593,18 +618,19 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 11,
+      name: "Gambler",
       rarity: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.CASE,
       description: {
         en: {
-          default: "Playing with this cat you have a chance for those events:",
-          random_event_1: "RANDOM EVENT: + 10% faster cat",
+          default: "This cat has a random event selected at the start of the game.",
+          random_event_1: "RANDOM EVENT: + 10% speed",
           random_event_2: "RANDOM EVENT: + 10% more coins",
           random_event_3: "RANDOM EVENT: + 5% more points",
-          random_event_4: "RANDOM EVENT: - You start with only 10 seconds",
+          random_event_4: "RANDOM EVENT: - Only 10 seconds at start",
           random_event_5: "RANDOM EVENT: - 5% less coins",
-          random_event_6: "RANDOM EVENT: - 25% smaller cat",
+          random_event_6: "RANDOM EVENT: - 25% size",
         },
         pl: {
           default: "Grając tym kotem masz szansę na te wydarzenia:",
@@ -644,6 +670,7 @@ const SKIN_MANAGER = {
     }),
     new Skin({
       id: 12,
+      name: "Timey",
       rarity: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.rarity,
       cost: CONSTS.SKINS.SKIN_RARITIES.MYTHIC.cost,
       source: CONSTS.SKINS.SKIN_SOURCES.CASE,
@@ -707,7 +734,7 @@ const SKIN_MANAGER = {
       this.renderAll();
     } else if (skin.isCaseOnly) {
       playSound(SFX.UI.buy_cat_fail);
-      document.querySelector("#catdescription").innerHTML =
+      document.querySelector("#catdescription-box").innerHTML =
         UI[saveState.lang].shop.case_only;
     } else {
       if (skin.unlock()) {
@@ -717,7 +744,7 @@ const SKIN_MANAGER = {
         playSound(SFX.UI.buy_cat_fail);
       }
     }
-    document.querySelector("#catdescription").innerHTML =
+    document.querySelector("#catdescription-box").innerHTML =
       this.selected.getDescription;
     document.querySelector("#coinsshop").innerHTML =
       UI[saveState.lang].shop.your_coins +
@@ -733,7 +760,7 @@ const SKIN_MANAGER = {
       parent.appendChild(skin.render(skin.id === saveState.cat));
     });
     document.querySelector("#cat").src = this.selected.imageSrc;
-    document.querySelector("#catdescription").innerHTML =
+    document.querySelector("#catdescription-box").innerHTML =
       this.selected.getDescription;
   },
 
@@ -796,6 +823,12 @@ const SFX = {
     click: {
       source: assets["audio/UI/button_click.wav"],
       volume: 0.8,
+      pitch_preserve: true,
+      playback_rate: 1,
+    },
+    bag_opening: {
+      source: assets["audio/UI/opening_sound.mp3"],
+      volume: 0.45,
       pitch_preserve: true,
       playback_rate: 1,
     },
@@ -971,20 +1004,14 @@ const COLLECTIBLES = {
 };
 
 const splashText = [
-  "(Not) The best web game of 2025!",
-  "Right now at version: b0.7",
-  "Made by wikt0r3k",
-  "Yes, I am polish.",
-  "Cześć Polsko!",
-  "Fish-Cat",
-  "These splashes ain't getting translated any time soon.",
-  'The "-" in logo is a fish :D',
-  "Maybe i'll add some more languages...",
-  "2 people job for real",
-  "God I love itch.io games.",
-  "Discord: wikt0r3k",
-  "God I love Balatro",
-  "Also try... oh wait, my friends don't make games...",
+  "Currently in version: 0.9b",
+  "wikt0r3k 2026",
+  "Where do you wander, lunar friend?",
+  "God I love cats!",
+  "Lock with a poker chip means you have to roll the cat.",
+  "Try using WASD",
+  "No, red does not mean good",
+  "No, black does not... I'm not going to finish this sentence"
 ];
 
 const UI = {
@@ -1043,61 +1070,6 @@ const UI = {
       items: "items collected, which converts into:",
       highestScore: "New personal best!",
     },
-    cats: {
-      cat_description: {
-        cat_0: "Your default cat.",
-        cat_1: {
-          buff: "+ 10% faster cat",
-          debuff: "- 5% less coins",
-        },
-        cat_2: {
-          buff: "+ 5% more chance for a Coin",
-          debuff: "- 5% less chance for Time Fish",
-        },
-        cat_3: {
-          buff: "+ 5% more chance for Time Fish",
-          debuff: "- 5% less chance for a Coin",
-        },
-        cat_4: {
-          buff: "+ 10% chance for Bad Fish to give 3 points instead of taking them",
-          debuff: "- 5% chance for Good Fish to not give any point",
-        },
-        cat_5: {
-          buff: "+ 10% chance for DOUBLE and 5% for TRIPLE points from Good Fish",
-          debuff: "- 5% chance for Bad Fish to take 10 points",
-        },
-        cat_6: {
-          buff: "+ 100% more chance for Gold Fish",
-          debuff: "- 20% chance for Good Fish to take 1 point",
-        },
-        cat_7: {
-          buff: "+ 5 additional fish",
-          debuff: "- 25% smaller cat",
-        },
-        cat_8: {
-          buff: "+ 10% bigger cat",
-          debuff: "- 5% slower cat",
-        },
-        cat_9: {
-          buff: "+ 5 additional seconds at start",
-          debuff: "- 1 Good Fish becomes a Bad Fish",
-        },
-        cat_10: {
-          buff: "+ Time Fish gives 1 second more",
-          debuff: "- You start with only 10 seconds",
-        },
-        cat_11: {
-          random_event_info:
-            "This cat has a random event picked at the start of the round",
-          random_event_1: "RANDOM EVENT: + 10% faster cat",
-          random_event_2: "RANDOM EVENT: + 10% more coins",
-          random_event_3: "RANDOM EVENT: + 5% more points",
-          random_event_4: "RANDOM EVENT: - You start with only 10 seconds",
-          random_event_5: "RANDOM EVENT: - 5% less coins",
-          random_event_6: "RANDOM EVENT: - 25% smaller cat",
-        },
-      },
-    },
     bag: {
       already_has: "Your already have this cat.",
       instead: "Instead, you'll get",
@@ -1107,89 +1079,221 @@ const UI = {
 };
 
 const quests = {
-  descriptions: {
-    en: {
-      your_quests: "Your quests",
-      reward: "Reward",
-      quest1: "Earn 50 coins in a single game",
-      quest2: "Collect a Gold Fish",
-      quest3: "Collect a Death Fish",
-      quest4: "Collect a total of 100 fish in one game",
-      quest5: "Collect a total of 30 Good Fish in one game",
-      quest6: "Finish a game with at least 10 fish and no bad one",
-      quest7: "Open a cat bag",
-      quest8: "Roll a RARE cat",
-      quest9: "Roll an EPIC cat",
-      quest10: "Roll a MYTHIC cat",
-      quest11: "Get 50 points from a single game",
-      quest12: "Get 100 points from a single game",
-      quest13: "Get 150 points from a single game",
-      quest14: "Get 200 points from a single game",
-      quest15: "Beat your personal record",
-      quest16: "Collect a total of 500 fish in one game",
-      quest17: "Earn 100 coins in a single game",
-      quest18: "Collect a total of 50 Time Fish in one game",
-      quest19: "Collect at least 5 fish without getting any Good Fish",
+  other: {
+    your_quests: {
+      en: "Your quests",
     },
+    
+    reward: {
+      en: "Reward",
+    }
   },
-  rewards: {
-    quest1: 100,
-    quest2: 150,
-    quest3: 150,
-    quest4: 200,
-    quest5: 150,
-    quest6: 150,
-    quest7: 125,
-    quest8: 250,
-    quest9: 500,
-    quest10: 1000,
-    quest11: 50,
-    quest12: 150,
-    quest13: 250,
-    quest14: 500,
-    quest15: 100,
-    quest16: 1000,
-    quest17: 150,
-    quest18: 750,
-    quest19: 250,
+
+  quest_1: {
+    description: {
+      en: "Earn 50 coins in a single game",
+    },
+    reward: 100,
+    condition: () => gameState.coins >= 50,
   },
-  conditions: {
-    quest1: () => gameState.coins >= 50,
-    quest2: () => gameState.collectibles.goldFish > 0,
-    quest3: () => gameState.collectibles.deathFish > 0,
-    quest4: () => gameState.collectibles.all >= 100,
-    quest5: () => gameState.collectibles.goodFish >= 30,
-    quest6: () =>
+  quest_2: {
+    description: {
+      en: "Collect a Gold Fish",
+    },
+    reward: 150,
+    condition: () => gameState.collectibles.goldFish > 0,
+  },
+  quest_3: {
+    description: {
+      en: "Collect a Death Fish",
+    },
+    reward: 150,
+    condition: () => gameState.collectibles.deathFish > 0,
+  },
+  quest_4: {
+    description: {
+      en: "Collect a total of 100 fish in one game",
+    },
+    reward: 200,
+    condition: () => gameState.collectibles.all >= 100
+  },
+  quest_5: {
+    description: {
+      en: "Collect a total of 30 Good Fish in one game",
+    },
+    reward: 150,
+    condition: () => gameState.collectibles.goodFish >= 30,
+  },
+  quest_6: {
+    description: {
+      en: "Finish a game with at least 10 fish and no bad one",
+    },
+    reward: 150,
+    condition: () =>
       gameState.collectibles.goodFish >= 10 &&
       gameState.collectibles.badFish + gameState.collectibles.deathFish < 1,
-    quest7: () => true,
-    quest8: (rarity) => rarity == "rare",
-    quest9: (rarity) => rarity == "epic",
-    quest10: (rarity) => rarity == "mythic",
-    quest11: () => gameState.counter >= 50,
-    quest12: () => gameState.counter >= 100,
-    quest13: () => gameState.counter >= 150,
-    quest14: () => gameState.counter >= 200,
-    quest15: () => saveState.stats.other.highestScore < gameState.counter,
-    quest16: () => gameState.collectibles.all >= 500,
-    quest17: () => gameState.coins >= 100,
-    quest18: () => gameState.collectibles.timeFish >= 50,
-    quest19: () =>
+  },
+  quest_7: {
+    description: {
+      en: "Open a cat bag",
+    },
+    reward: 125,
+    condition: () => true,
+  },
+  quest_8: {
+    description: {
+      en: "Roll a RARE cat",
+    },
+    reward: 250,
+    condition: (rarity) => rarity == "rare",
+  },
+  quest_9: {
+    description: {
+      en: "Roll an EPIC cat",
+    },
+    reward: 500,
+    condition: (rarity) => rarity == "epic",
+  },
+  quest_10: {
+    description: {
+      en: "Roll a MYTHIC cat",
+    },
+    reward: 1000,
+    condition: (rarity) => rarity == "mythic",
+  },
+  quest_11: {
+    description: {
+      en: "Get 50 points from a single game",
+    },
+    reward: 50,
+    condition: () => gameState.counter >= 50,
+  },
+  quest_12: {
+    description: {
+      en: "Get 100 points from a single game",
+    },
+    reward: 150,
+    condition: () => gameState.counter >= 100,
+  },
+  quest_13: {
+    description: {
+      en: "Get 150 points from a single game",
+    },
+    reward: 250,
+    condition: () => gameState.counter >= 150,
+  },
+  quest_14: {
+    description: {
+      en: "Get 250 points from a single game",
+    },
+    reward: 500,
+    condition: () => gameState.counter >= 250,
+  },
+  quest_15: {
+    description: {
+      en: "Beat your personal record",
+    },
+    reward: 100,
+    condition: () => saveState.stats.other.highestScore < gameState.counter,
+  },
+  quest_16: {
+    description: {
+      en: "Collect a total of 500 collectibles in one game",
+    },
+    reward: 1000,
+    condition: () => gameState.collectibles.all >= 500,
+  },
+  quest_17: {
+    description: {
+      en: "Earn 100 coins in a single game",
+    },
+    reward: 150,
+    condition: () => gameState.coins >= 100,
+  },
+  quest_18: {
+    description: {
+      en: "Collect a total of 50 Time Fish in one game",
+    },
+    reward: 750,
+    condition: () => gameState.collectibles.timeFish >= 50,
+  },
+  quest_19: {
+    description: {
+      en: "Collect at least 5 fish without getting any Good Fish",
+    },
+    reward: 250,
+    condition: () =>
       gameState.collectibles.all >= 5 && gameState.collectibles.goodFish < 1,
+  },
+  quest_20: {
+    description: {
+      en: "Collect every collectible in one game",
+    },
+    reward: 250,
+    condition: () =>
+      gameState.collectibles.goodFish > 0 &&
+      gameState.collectibles.badFish > 0 &&
+      gameState.collectibles.timeFish > 0 &&
+      gameState.collectibles.deathFish > 0 &&
+      gameState.collectibles.goldFish > 0 &&
+      gameState.collectibles.freezeFish > 0 &&
+      gameState.collectibles.coins > 0,
+  },
+  quest_21: {
+    description: {
+      en: "Get a score of -50 or less",
+    },
+    reward: 50,
+    condition: () => gameState.counter <= -50,
+  },
+  quest_22: {
+    description: {
+      en: "Get a score of -100 or less",
+    },
+    reward: 100,
+    condition: () => gameState.counter <= -100,
+  },
+  quest_23: {
+    description: {
+      en: "Get a score of -150 or less",
+    },
+    reward: 250,
+    condition: () => gameState.counter <= -150,
+  },
+  quest_24: {
+    description: {
+      en: "Get a score of -250 or less",
+    },
+    reward: 500,
+    condition: () => gameState.counter <= -250,
+  },
+  quest_25: {
+    description: {
+      en: "Get a score of -500 or less",
+    },
+    reward: 1000,
+    condition: () => gameState.counter <= -500,
+  },
+  quest_26: {
+    description: {
+      en: "Get a score of -1000 or less",
+    },
+    reward: 2500,
+    condition: () => gameState.counter <= -1000,
   },
 };
 
 function completeQuest(questID, slotIndex) {
   playSound(SFX.UI.buy_cat);
 
-  saveState.coins += quests.rewards[`quest${questID}`];
+  saveState.coins += quests[`quest_${questID}`].reward;
   saveState.stats.other.quests++;
 
   let screen = document.querySelector("body");
   let child = document.createElement("span");
   child.innerHTML =
     " +" +
-    quests.rewards["quest" + questID] +
+    quests[`quest_${questID}`].reward +
     ' <img width="32" height="32" src="images/UI/moneta.png"> ';
   child.id = "dailyrewardpopup";
   screen.appendChild(child);
@@ -1202,8 +1306,10 @@ function completeQuest(questID, slotIndex) {
   const newID = Math.floor(Math.random() * _questCounter) + 1;
   saveState.quests[slotIndex] = {
     id: newID,
-    desc: quests.descriptions[saveState.lang][`quest${newID}`],
-    reward: quests.rewards[`quest${newID}`],
+    desc: quests[`quest_${newID}`].description[saveState.lang],
+    reward: quests[`quest_${newID}`].reward,
     status: false,
   };
+
+  questmenu();
 }
